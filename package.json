@@ -1,0 +1,29 @@
+{
+  "name": "doku-nodejs-library",
+  "version": "1.0.0",
+  "description": "doku nodejs library",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PTNUSASATUINTIARTHA-DOKU/doku-nodejs-library.git"
+  },
+  "keywords": [
+    "doku",
+    "nodejs",
+    "library"
+  ],
+  "author": "zulfikar",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PTNUSASATUINTIARTHA-DOKU/doku-nodejs-library/issues"
+  },
+  "homepage": "https://github.com/PTNUSASATUINTIARTHA-DOKU/doku-nodejs-library#readme",
+  "dependencies": {
+    "axios": "^1.6.8",
+    "jsrsasign": "^11.1.0",
+    "lodash": "^4.17.21"
+  }
+}
