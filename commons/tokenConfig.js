@@ -3,9 +3,9 @@
 const _ = require('lodash');
 class TokenConfig{
  
-  constructor(options={tokenB2B:"",tokenB2BExpiresIn:0,}){
-    this.tokenB2B = '';
-    this.tokenB2BExpiresIn = 0;
+  constructor(options={tokenB2B:"",tokenB2BExpiresIn:0}){
+    this.tokenB2B;
+    this.tokenB2BExpiresIn;
     this.set(options);
   }
   

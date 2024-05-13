@@ -8,7 +8,7 @@ class Snap{
     
     constructor(options={isProduction:false,privateKey:'',clientID:''}){
         this.apiConfig = new ApiConfig(options);
-        this.tokenB2B()
+        this.tokenVariables = new TokenConfig();
     }
     
     tokenB2B() {
@@ -17,6 +17,15 @@ class Snap{
     }
     createVA(params){
         const xTimestamp = SnapService.generateTimestamp(); 
+        if(!this.tokenVariables.get().tokenB2B){
+            console.log("Token tidak tersedia, membuat token baru");
+            this.tokenB2B().then((token) => {
+                this.tokenVariables.set({tokenB2B:token.accessToken,tokenB2BExpiresIn:token.expiresIn})
+                console.log("Token B2B telah diatur: " + this.tokenVariables.get().tokenB2B);
+            })
+        }else{
+            console.log("Token tersedia: " + this.tokenVariables.get().tokenB2B);
+        }
         return SnapService.createVA(this.apiConfig,xTimestamp,params);
     }
   }

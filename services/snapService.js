@@ -2,6 +2,7 @@
 const { default: axios } = require('axios');
 const KJUR = require('jsrsasign');
 const { generateTokenB2BBody } = require('../models/tokenModel');
+const TokenB2BRequestDTO = require('../models/tokenB2BRequestDTO');
 
 module.exports = {
     hexToBase64(hexString) {
@@ -35,15 +36,17 @@ module.exports = {
         const privateKey = apiConfig.get().privateKey;
         const clientID =apiConfig.get().clientID;
         const base_url_api = apiConfig.getCoreApiBaseUrl()
+       
         return new Promise((resolve, reject) => {
             const signatureResult= this.generateSignature(privateKey,clientID,xTimestamp);
+            const tokenRequest = new TokenB2BRequestDTO(clientID,xTimestamp,signatureResult);
             axios({
                 method: 'post',
                 url: `${base_url_api}/authorization/v1/access-token/b2b`,
                 headers: {
-                    "X-CLIENT-KEY": clientID,
-                    "X-TIMESTAMP": xTimestamp,
-                    "X-SIGNATURE": signatureResult
+                    "X-CLIENT-KEY": tokenRequest.clientID,
+                    "X-TIMESTAMP": tokenRequest.xTimestamp,
+                    "X-SIGNATURE": tokenRequest.signatureResult
                 },
                 data: generateTokenB2BBody
             })
