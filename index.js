@@ -1,4 +1,4 @@
-const Snap = require("./controllers/snapController");
+const Snap = require("./_modules/snap");
 
 const Doku = { 
     Snap

@@ -1,4 +1,8 @@
 const doku = require('../index');
+const CreateVARequestDto = require('../_models/createVaRequestDto');
+const AdditionalInfo = require('../_models/additionalInfo');
+const TotalAmount = require('../_models/totalAmount');
+const VirtualAccountConfig = require('../_models/virtualAccountConfig');
 let privateKey = `-----BEGIN PRIVATE KEY-----
 MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCvuA0S+R8RGEoT
 xZYfksdNam3/iNrKzY/RqGbN4Gf0juIN8XnUM8dGv4DVqmXQwRMMeQ3N/Y26pMDJ
@@ -28,71 +32,52 @@ r4GK50j9BoPSJhiM6k236LSc5+iZRKRVUCFEfyMPx6AY+jD2flfGxUv2iULp92XG
 OrzKGlO90/6sNzIDd2DbRSM=
 -----END PRIVATE KEY-----`
 let clientID = 'BRN-0221-1693209567392'
-let snap = new doku.Snap({
-    isProduction : false,
-    privateKey : privateKey,
-    clientID : clientID
-});
-generateToken=()=>{
-    snap.tokenB2B().then((res)=>{
-                console.log(res)
-            }).catch((err)=>{
-                console.log(err)
-            })
+let snap;
+
+function initializeSnap() {
+    snap = new doku.Snap({
+        isProduction : false,
+        privateKey : privateKey,
+        clientID : clientID
+    });
 }
-createVa=()=>{
-    const param = {
-        "partnerServiceId": "    1899",
-        "trxId": "INV_CIMB_"+Date.now(),
-        "virtualAccountTrxType": "1",
-        "totalAmount": {
-            "value": "12500.00",
-            "currency": "IDR"
-        },
-        "feeAmount": {
-            "value": "1000.00",
-            "currency": "IDR"
-        },
-        "expiredDate": "2024-05-22T09:54:04+07:00",
-        "virtualAccountName": "T_"+Date.now(),
-        "virtualAccountEmail": "test.bnc."+Date.now()+"@test.com",
-        "virtualAccountPhone": "628"+Date.now(),
-        "billDetails": [
-            {
-                "billCode": "01",
-                "billNo": `${Date.now()}`,
-                "billName": "Bill A for Jan",
-                "billShortName": "Bill A",
-                "billDescription": {
-                    "english": "Maintenance",
-                    "indonesia": "Pemeliharaan"
-                },
-                "billSubCompany": "00001",
-                "billAmount": {
-                    "value": "10000.00",
-                    "currency": "IDR"
-                },
-                "additionalInfo": {}
-            }
-        ],
-        "freeTexts": [
-            {
-                "english": "Free text",
-                "indonesia": "Tulisan bebas"
-            }
-        ],
-        "additionalInfo": {
-            "channel": "VIRTUAL_ACCOUNT_BANK_CIMB",
-            "virtualAccountConfig": {
-                "reusableStatus": false
-            }
-        }
-    }
-    snap.createVA(param).then((res)=>{
-        console.log("VA CIMB")
-        console.log(res.data)
-    }).catch((err)=>{
-        console.log(err)
+
+async function start(){
+    initializeSnap();
+
+    
+    let createVaRequestDto = new CreateVARequestDto()
+    
+    createVaRequestDto.partnerServiceId = "    1899";
+    createVaRequestDto.customerNo = null;
+    createVaRequestDto.virtualAccountNo = null;
+    
+    createVaRequestDto.virtualAccountName = "T_"+Date.now();
+    createVaRequestDto.virtualAccountEmail = "test.bnc."+Date.now()+"@test.com";
+    createVaRequestDto.virtualAccountPhone = "00000062"+Date.now(),"INV_CIMB_"+Date.now();
+    createVaRequestDto.trxId = "INV_CIMB_"+Date.now();
+
+    let totalAmount = new TotalAmount();
+    totalAmount.value = "12500.00";
+    totalAmount.currency = "IDR";
+
+    createVaRequestDto.totalAmount = totalAmount;
+
+    let virtualAccountConfig = new VirtualAccountConfig();
+    virtualAccountConfig.reusableStatus = false;
+
+    let additionalInfo = new AdditionalInfo("VIRTUAL_ACCOUNT_BANK_CIMB", virtualAccountConfig);
+    additionalInfo.channel = "VIRTUAL_ACCOUNT_BANK_CIMB";
+    additionalInfo.virtualAccountConfig = virtualAccountConfig;
+    createVaRequestDto.additionalInfo = additionalInfo;
+    createVaRequestDto.virtualAccountTrxType = "1";
+    createVaRequestDto.expiredDate = "2024-05-22T09:54:04+07:00";
+
+
+    await snap.createVa(createVaRequestDto).then(va=>{
+        console.log(va)
     })
+
 }
-createVa()
+
+start();
