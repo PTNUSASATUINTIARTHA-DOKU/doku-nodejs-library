@@ -31,12 +31,10 @@ class Snap{
     }
 
     async createVa(createVARequestDto){
-        // console.log(createVARequestDto instanceof CreateVARequestDto);
         createVARequestDto.validateVaRequestDto();
         
         var tokenController = new TokenController();
         var isTokenInvalid = tokenController.isTokenInvalid(this.tokenB2B, this.tokenExpiresIn, this.tokenGeneratedTimestamp);
-
         if(isTokenInvalid){
             await this.getTokenB2B();
         }
@@ -44,7 +42,6 @@ class Snap{
         let vaController = new VaController()
         let a = await vaController.createVa(createVARequestDto, this.privateKey, this.clientId, this.tokenB2B,this.isProduction);
         return a
-        // return CreateVaResponseDto
     }
 
   }

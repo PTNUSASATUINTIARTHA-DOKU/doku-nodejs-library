@@ -3,6 +3,7 @@ const { default: axios } = require('axios');
 const KJUR = require('jsrsasign');
 const config = require('../_commons/config');
 const TokenService = require('./tokenService');
+const CreateVAResponseDTO = require('../_models/createVaResponseDTO');
 
 module.exports = {
     generateExternalId() {
@@ -19,8 +20,8 @@ module.exports = {
         // Combine UUID and timestamp
         return `${uuid}-${timestamp}`;
     },
-    createVaRequestHeaderDto(createVaRequestDto, privateKey, clientId, tokenB2B){
-        let timestamp = TokenService.generateTimestamp();
+    createVaRequestHeaderDto(createVaRequestDto, privateKey, clientId, tokenB2B,timestamp){
+    
         return {
             xTimestamp:timestamp,
             xSignature:TokenService.generateSignature(privateKey,privateKey, clientId, timestamp),
@@ -41,7 +42,6 @@ module.exports = {
             "X-EXTERNAL-ID": requestHeaderDto.xExternalId,
             "CHANNEL-ID":requestHeaderDto.channelId
         }
-
         return await new Promise((resolve, reject) => {
             axios({
                 method: 'post',
@@ -50,7 +50,9 @@ module.exports = {
                 data:createVaRequestDto.toObject()
             })
             .then((res) => {
-                resolve(res.data);
+                console.log(res.data)
+                let response = new CreateVAResponseDTO(res.data);
+                resolve(response);
             })
             .catch((err) => {
                 reject(err);

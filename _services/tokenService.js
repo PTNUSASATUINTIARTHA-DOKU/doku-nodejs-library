@@ -72,6 +72,12 @@ module.exports = {
     },
     isTokenExpired(tokenExpiresIn, tokenGeneratedTimestamp){
         //tokenGeneratedTimestamp + tokenExpiresIn (second) < Now()
-        return false
+        const expirationTime = tokenGeneratedTimestamp + tokenExpiresIn;
+        if(expirationTime <  Date.now()){
+            return true
+        }else{
+            return false
+        }
+        
     }
 };

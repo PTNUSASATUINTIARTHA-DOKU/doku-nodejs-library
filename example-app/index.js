@@ -3,6 +3,54 @@ const CreateVARequestDto = require('../_models/createVaRequestDto');
 const AdditionalInfo = require('../_models/additionalInfo');
 const TotalAmount = require('../_models/totalAmount');
 const VirtualAccountConfig = require('../_models/virtualAccountConfig');
+const param = {
+    "partnerServiceId": "    1899",
+    "trxId": "INV_CIMB_"+Date.now(),
+    "virtualAccountTrxType": "1",
+    "totalAmount": {
+        "value": "12500.00",
+        "currency": "IDR"
+    },
+    "feeAmount": {
+        "value": "1000.00",
+        "currency": "IDR"
+    },
+    "expiredDate": "2024-04-22T09:54:04+07:00",
+    "virtualAccountName": "T_"+Date.now(),
+    "virtualAccountEmail": "test.bnc."+Date.now()+"@test.com",
+    "virtualAccountPhone": "628"+Date.now(),
+    "billDetails": [
+        {
+            "billCode": "01",
+            "billNo": `${Date.now()}`,
+            "billName": "Bill A for Jan",
+            "billShortName": "Bill A",
+            "billDescription": {
+                "english": "Maintenance",
+                "indonesia": "Pemeliharaan"
+            },
+            "billSubCompany": "00001",
+            "billAmount": {
+                "value": "10000.00",
+                "currency": "IDR"
+            },
+            "additionalInfo": {}
+        }
+    ],
+    "freeTexts": [
+        {
+            "english": "Free text",
+            "indonesia": "Tulisan bebas"
+        }
+    ],
+    "additionalInfo": {
+        "channel": "VIRTUAL_ACCOUNT_BANK_CIMB",
+        "virtualAccountConfig": {
+            "reusableStatus": false
+        }
+    }
+}
+
 let privateKey = `-----BEGIN PRIVATE KEY-----
 MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCvuA0S+R8RGEoT
 xZYfksdNam3/iNrKzY/RqGbN4Gf0juIN8XnUM8dGv4DVqmXQwRMMeQ3N/Y26pMDJ
@@ -47,10 +95,14 @@ async function start(){
 
     
     let createVaRequestDto = new CreateVARequestDto()
+    // dgpc
+    // createVaRequestDto.partnerServiceId = "    1899"; 
+
+    // mgpc
+    createVaRequestDto.partnerServiceId = " 8129014"
+    createVaRequestDto.customerNo = "17137492121";
+    createVaRequestDto.virtualAccountNo = createVaRequestDto.partnerServiceId+createVaRequestDto.customerNo;
     
-    createVaRequestDto.partnerServiceId = "    1899";
-    createVaRequestDto.customerNo = null;
-    createVaRequestDto.virtualAccountNo = null;
     
     createVaRequestDto.virtualAccountName = "T_"+Date.now();
     createVaRequestDto.virtualAccountEmail = "test.bnc."+Date.now()+"@test.com";
@@ -72,7 +124,6 @@ async function start(){
     createVaRequestDto.additionalInfo = additionalInfo;
     createVaRequestDto.virtualAccountTrxType = "1";
     createVaRequestDto.expiredDate = "2024-05-22T09:54:04+07:00";
-
 
     await snap.createVa(createVaRequestDto).then(va=>{
         console.log(va)
