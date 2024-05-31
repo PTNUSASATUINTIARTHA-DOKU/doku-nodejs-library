@@ -11,5 +11,4 @@ class TotalAmount {
         };
     }
 }
-
 module.exports = TotalAmount;

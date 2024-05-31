@@ -2,11 +2,25 @@
 const { default: axios } = require('axios');
 const KJUR = require('jsrsasign');
 const config = require('../_commons/config');
+const jwt = require('jsonwebtoken');
+const NotificationTokenDto = require('../_models/notificationTokenDTO');
+const NotificationTokenBodyDto = require('../_models/NotificationTokenBodytDto');
+const NotificationTokenHeaderDto = require('../_models/notificationTokenHeaderDTO');
 
 module.exports = {
     hexToBase64(hexString) {
         const buffer = Buffer.from(hexString, 'hex');
         return buffer.toString('base64');
+    },
+    generateToken(expiredIn, issuer, privateKey, clientId) {
+       const expiration = Math.floor(Date.now() / 1000) + expiredIn;
+       const payload = {
+            exp: expiration,
+            issuer: issuer,
+            clientId:clientId
+        };
+        const token = jwt.sign(payload, privateKey, { algorithm: 'RS256' });
+        return token;
     },
     generateSignature(privateKey,clientID,xTimestamp) {
         try {
@@ -18,6 +32,13 @@ module.exports = {
             return signatureResult; 
         } catch(error) {
             throw error;
+        }
+    },
+    compareSignatures(requestSignature,newSignature){
+        if(requestSignature === newSignature){
+            return true
+        }else{
+            return false
         }
     },
     generateTimestamp() {
@@ -79,5 +100,17 @@ module.exports = {
             return false
         }
         
+    },
+    generateNotificationTokenDto(token,timestamp,clientId,expiresIn){
+        let header = new NotificationTokenHeaderDto(clientId,timestamp)
+        let body = new NotificationTokenBodyDto("2007300","Successful",token,"Bearer",expiresIn,"")
+        let response = new NotificationTokenDto(header,body);
+        return response
+    },
+    generateInvalidSignature(timestamp){
+        let header = new NotificationTokenHeaderDto(null,timestamp)
+        let body = new NotificationTokenBodyDto("4017300","Unauthorized.Invalid Signature",null,null,null,null)
+        let response = new NotificationTokenDto(header,body);
+        return response
     }
 };

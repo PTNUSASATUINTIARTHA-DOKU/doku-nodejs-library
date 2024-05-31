@@ -45,6 +45,7 @@ class CreateVARequestDto {
     
         let schema;
         if (this.customerNo && this.virtualAccountNo) {
+            console.log("mask")
             schema = Joi.object({
                 ...commonSchema,
                 customerNo: Joi.string().max(20).pattern(/^\d+$/).required(),
@@ -53,14 +54,13 @@ class CreateVARequestDto {
         } else {
             schema = Joi.object({
                 ...commonSchema,
-                customerNo: Joi.string(),
-                virtualAccountNo: Joi.string()
+                customerNo: Joi.allow(),
+                virtualAccountNo: Joi.allow()
             });
         }
     
         const { error } = schema.validate(this, { abortEarly: false });
         if (error) {
-            console.log(error);
             throw new Error(`Validation failed: ${error.details.map(x => x.message).join(', ')}`);
         }
     }
@@ -75,8 +75,8 @@ class CreateVARequestDto {
             virtualAccountEmail: this.virtualAccountEmail,
             virtualAccountPhone: this.virtualAccountPhone,
             trxId: this.trxId,
-            totalAmount: this.totalAmount.toObject(),
-            additionalInfo: this.additionalInfo.toObject(),
+            totalAmount: this.totalAmount,
+            additionalInfo: this.additionalInfo,
             virtualAccountTrxType: this.virtualAccountTrxType,
             expiredDate: this.expiredDate
         };

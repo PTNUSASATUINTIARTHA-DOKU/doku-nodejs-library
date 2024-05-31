@@ -2,7 +2,6 @@
 
 const TokenController = require("../_controllers/tokenController");
 const VaController = require("../_controllers/vaController");
-const CreateVARequestDto = require("../_models/createVaRequestDto");
 
 class Snap{
     privateKey = ''
@@ -11,12 +10,18 @@ class Snap{
     tokenB2B = '';
     tokenExpiresIn=900;
     tokenGeneratedTimestamp='';
+    publicKey = ''
+    issuer = '';
     
-    constructor(options={isProduction:false,privateKey:'',clientID:''}){
+    constructor(options={isProduction:false,privateKey:'',clientID:'',publicKey:'',issuer:''}){
         this.isProduction = options.isProduction;
         this.privateKey = options.privateKey;
         this.clientId = options.clientID;
+        this.publicKey = options.publicKey;
+        this.issuer = options.issuer;
+        this.getTokenB2B() 
     }
+   
     
     async getTokenB2B() {
         var tokenController = new TokenController();
@@ -43,7 +48,46 @@ class Snap{
         let a = await vaController.createVa(createVARequestDto, this.privateKey, this.clientId, this.tokenB2B,this.isProduction);
         return a
     }
-
-  }
-  
+    async createVa(createVARequestDto){
+        createVARequestDto.validateVaRequestDto();
+        var tokenController = new TokenController();
+        var isTokenInvalid = tokenController.isTokenInvalid(this.tokenB2B, this.tokenExpiresIn, this.tokenGeneratedTimestamp);
+        if(isTokenInvalid){
+            await this.getTokenB2B();
+        }
+        
+        let vaController = new VaController()
+        let a = await vaController.createVa(createVARequestDto, this.privateKey, this.clientId, this.tokenB2B,this.isProduction);
+        return a
+    }
+    async createVaV1(createVaRequestDtoV1){
+        var createVARequestDto = createVaRequestDtoV1.convertToCreateVaRequestDto();
+        createVARequestDto.validateVaRequestDto();
+        var tokenController = new TokenController();
+        var isTokenInvalid = tokenController.isTokenInvalid(this.tokenB2B, this.tokenExpiresIn, this.tokenGeneratedTimestamp);
+        if(isTokenInvalid){
+            await this.getTokenB2B();
+        }
+        
+        let vaController = new VaController()
+        let a = await vaController.createVa(createVARequestDto, this.privateKey, this.clientId, this.tokenB2B,this.isProduction);
+        return a
+    }
+    validateSignature(requestSignature,requestTimestamp){
+        var tokenController = new TokenController();
+        return tokenController.validateSignature(requestSignature,requestTimestamp,this.privateKey,this.clientId)
+    }
+    generateTokenB2B(isSignatureValid){
+        var tokenController = new TokenController();
+        if(isSignatureValid){
+            return tokenController.generateTokenB2B(this.tokenExpiresIn, this.issuer, this.privateKey, this.clientId);
+        }else{
+            return tokenController.generateInvalidSignatureResponse()
+        }
+    }
+    validateSignatureAndGenerateToken(requestSignature,requestTimestamp){
+        const isSignatureValid = this.validateSignature(requestSignature, requestTimestamp)
+        return this.generateTokenB2B(isSignatureValid)
+    }
+}
 module.exports = Snap;

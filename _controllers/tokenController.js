@@ -16,11 +16,25 @@ class TokenController{
         }
     }
 
+    validateSignature(requestSignature, requestTimestamp, privateKey,clientId){
+        const signature = TokenService.generateSignature(privateKey, clientId, requestTimestamp);
+        return TokenService.compareSignatures(requestSignature,signature)
+    }
+
     async getTokenB2B(privateKey, clientId, isProduction){
         const xTimestamp = TokenService.generateTimestamp(); 
         const signature = TokenService.generateSignature(privateKey, clientId, xTimestamp);
         const createTokenB2BRequestDTO = TokenService.createTokenB2BRequestDTO(signature, xTimestamp, clientId);
         return await TokenService.createTokenB2B(createTokenB2BRequestDTO,isProduction);
+    }
+    generateInvalidSignatureResponse(){
+        const xTimestamp = TokenService.generateTimestamp(); 
+        return TokenService.generateInvalidSignature(xTimestamp)
+    }
+    generateTokenB2B(expiredIn,issuer, privateKey, clientId){
+        const xTimestamp = TokenService.generateTimestamp(); 
+        const token =  TokenService.generateToken(expiredIn,issuer, privateKey, clientId);
+        return TokenService.generateNotificationTokenDto(token,xTimestamp,clientId,expiredIn)
     }
 
 

@@ -3,6 +3,7 @@ const CreateVARequestDto = require('../_models/createVaRequestDto');
 const AdditionalInfo = require('../_models/additionalInfo');
 const TotalAmount = require('../_models/totalAmount');
 const VirtualAccountConfig = require('../_models/virtualAccountConfig');
+const CreateVaRequestDtoV1 = require('../_models/createVaRequestDTOV1');
 const param = {
     "partnerServiceId": "    1899",
     "trxId": "INV_CIMB_"+Date.now(),
@@ -96,12 +97,12 @@ async function start(){
     
     let createVaRequestDto = new CreateVARequestDto()
     // dgpc
-    // createVaRequestDto.partnerServiceId = "    1899"; 
+    createVaRequestDto.partnerServiceId = "    1899"; 
 
     // mgpc
-    createVaRequestDto.partnerServiceId = " 8129014"
-    createVaRequestDto.customerNo = "17137492121";
-    createVaRequestDto.virtualAccountNo = createVaRequestDto.partnerServiceId+createVaRequestDto.customerNo;
+    // createVaRequestDto.partnerServiceId = " 8129014"
+    // createVaRequestDto.customerNo = "1";
+    // createVaRequestDto.virtualAccountNo = createVaRequestDto.partnerServiceId+createVaRequestDto.customerNo;
     
     
     createVaRequestDto.virtualAccountName = "T_"+Date.now();
@@ -123,7 +124,7 @@ async function start(){
     additionalInfo.virtualAccountConfig = virtualAccountConfig;
     createVaRequestDto.additionalInfo = additionalInfo;
     createVaRequestDto.virtualAccountTrxType = "1";
-    createVaRequestDto.expiredDate = "2024-05-22T09:54:04+07:00";
+    createVaRequestDto.expiredDate = "2024-06-24T09:54:04+07:00";
 
     await snap.createVa(createVaRequestDto).then(va=>{
         console.log(va)
@@ -131,4 +132,29 @@ async function start(){
 
 }
 
-start();
+async function createVaV1(){
+    initializeSnap();
+
+    
+    let createVaRequestDto = new CreateVaRequestDtoV1()
+    // dgpc
+    createVaRequestDto.partnerServiceId = "    1899"; 
+
+    
+    createVaRequestDto.name = "T_"+Date.now();
+    createVaRequestDto.email = "test.bnc."+Date.now()+"@test.com";
+    createVaRequestDto.mobilephone = "00000062"+Date.now(),"INV_CIMB_"+Date.now();
+    createVaRequestDto.transIdMerchant = "INV_CIMB_"+Date.now();
+    createVaRequestDto.amount = "12500.00";
+    createVaRequestDto.currency = "IDR"
+    createVaRequestDto.paymentChannel = "VIRTUAL_ACCOUNT_BANK_CIMB"
+    createVaRequestDto.expiredDate = "2024-06-24T09:54:04+07:00"
+
+    await snap.createVa(createVaRequestDto).then(va=>{
+        console.log(va)
+    })
+
+}
+
+// createVaV1();
+start()

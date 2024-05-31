@@ -50,7 +50,6 @@ module.exports = {
                 data:createVaRequestDto.toObject()
             })
             .then((res) => {
-                console.log(res.data)
                 let response = new CreateVAResponseDTO(res.data);
                 resolve(response);
             })
