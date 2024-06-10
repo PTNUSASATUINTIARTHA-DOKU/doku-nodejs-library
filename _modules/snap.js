@@ -1,5 +1,6 @@
 "use strict"
 
+const NotificationController = require("../_controllers/notificationController");
 const TokenController = require("../_controllers/tokenController");
 const VaController = require("../_controllers/vaController");
 
@@ -68,7 +69,6 @@ class Snap{
         if(isTokenInvalid){
             await this.getTokenB2B();
         }
-        
         let vaController = new VaController()
         let a = await vaController.createVa(createVARequestDto, this.privateKey, this.clientId, this.tokenB2B,this.isProduction);
         return a
@@ -88,6 +88,26 @@ class Snap{
     validateSignatureAndGenerateToken(requestSignature,requestTimestamp){
         const isSignatureValid = this.validateSignature(requestSignature, requestTimestamp)
         return this.generateTokenB2B(isSignatureValid)
+    }
+    validateTokenB2B(requestTokenB2B){
+        var tokenController = new TokenController();
+        return tokenController.validateTokenB2B(requestTokenB2B,this.publicKey)
+    }
+    generateNotificationResponse(isTokenValid, PaymentNotificationRequestBodyDto){
+        var notificationController = new NotificationController();
+            if(isTokenValid){
+                if(PaymentNotificationRequestBodyDto){
+                    return notificationController.generateNotificationResponse(PaymentNotificationRequestBodyDto)
+                }else{
+                    throw new Error(`if token is valid, please provide PaymentNotificationRequestBodyDto`);	
+                }
+            }else{
+               return notificationController.generateInvalidTokenResponse(PaymentNotificationRequestBodyDto)
+            }
+    }
+    validateTokenAndGenerateNotificationResponse(requestTokenB2B,PaymentNotificationRequestBodyDto){
+        const isTokenValid = this.validateTokenB2B(requestTokenB2B)
+        return this.generateNotificationResponse(isTokenValid,PaymentNotificationRequestBodyDto)
     }
 }
 module.exports = Snap;

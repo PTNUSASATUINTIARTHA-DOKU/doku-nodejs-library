@@ -36,6 +36,9 @@ class TokenController{
         const token =  TokenService.generateToken(expiredIn,issuer, privateKey, clientId);
         return TokenService.generateNotificationTokenDto(token,xTimestamp,clientId,expiredIn)
     }
+    validateTokenB2B(requestTokenB2B, publicKey){
+        return TokenService.validateTokenB2B(requestTokenB2B, publicKey)
+    }
 
 
 }

@@ -150,11 +150,11 @@ async function createVaV1(){
     createVaRequestDto.paymentChannel = "VIRTUAL_ACCOUNT_BANK_CIMB"
     createVaRequestDto.expiredDate = "2024-06-24T09:54:04+07:00"
 
-    await snap.createVa(createVaRequestDto).then(va=>{
+    await snap.createVaV1(createVaRequestDto).then(va=>{
         console.log(va)
     })
 
 }
 
-// createVaV1();
-start()
+createVaV1();
+// start()

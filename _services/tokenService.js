@@ -112,5 +112,13 @@ module.exports = {
         let body = new NotificationTokenBodyDto("4017300","Unauthorized.Invalid Signature",null,null,null,null)
         let response = new NotificationTokenDto(header,body);
         return response
+    },
+    validateTokenB2B(requestTokenB2B, publicKey){
+        try {
+            const claims = jwt.verify(requestTokenB2B, publicKey);
+            return claims
+        } catch (err) {
+            console.error('Invalid token', err);
+        }
     }
 };
