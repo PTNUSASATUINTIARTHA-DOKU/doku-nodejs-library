@@ -23,7 +23,9 @@
   "homepage": "https://github.com/PTNUSASATUINTIARTHA-DOKU/doku-nodejs-library#readme",
   "dependencies": {
     "axios": "^1.6.8",
+    "crypto-js": "^4.2.0",
     "joi": "^17.13.1",
+    "jsonminify": "^0.4.2",
     "jsonwebtoken": "^9.0.2",
     "jsrsasign": "^11.1.0",
     "lodash": "^4.17.21"

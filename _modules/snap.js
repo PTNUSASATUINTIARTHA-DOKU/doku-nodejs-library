@@ -13,21 +13,24 @@ class Snap{
     tokenGeneratedTimestamp='';
     publicKey = ''
     issuer = '';
+    secretKey = '';
     
-    constructor(options={isProduction:false,privateKey:'',clientID:'',publicKey:'',issuer:''}){
+    constructor(options={isProduction:false,privateKey:'',clientID:'',publicKey:'',issuer:'', secretKey:''}){
         this.isProduction = options.isProduction;
         this.privateKey = options.privateKey;
         this.clientId = options.clientID;
         this.publicKey = options.publicKey;
         this.issuer = options.issuer;
-        this.getTokenB2B() 
+        this.secretKey = options.secretKey;
+        // this.getTokenB2B() 
     }
    
     
     async getTokenB2B() {
-        var tokenController = new TokenController();
+        let tokenController = new TokenController();
         const tokenB2BResponseDto = await tokenController.getTokenB2B(this.privateKey, this.clientId, this.isProduction);
         this.setTokenB2B(tokenB2BResponseDto);
+        return tokenB2BResponseDto;
     }
     
     setTokenB2B(tokenB2BResponseDto){
@@ -39,20 +42,8 @@ class Snap{
     async createVa(createVARequestDto){
         createVARequestDto.validateVaRequestDto();
         
-        var tokenController = new TokenController();
-        var isTokenInvalid = tokenController.isTokenInvalid(this.tokenB2B, this.tokenExpiresIn, this.tokenGeneratedTimestamp);
-        if(isTokenInvalid){
-            await this.getTokenB2B();
-        }
-        
-        let vaController = new VaController()
-        let a = await vaController.createVa(createVARequestDto, this.privateKey, this.clientId, this.tokenB2B,this.isProduction);
-        return a
-    }
-    async createVa(createVARequestDto){
-        createVARequestDto.validateVaRequestDto();
-        var tokenController = new TokenController();
-        var isTokenInvalid = tokenController.isTokenInvalid(this.tokenB2B, this.tokenExpiresIn, this.tokenGeneratedTimestamp);
+        let tokenController = new TokenController();
+        let isTokenInvalid = tokenController.isTokenInvalid(this.tokenB2B, this.tokenExpiresIn, this.tokenGeneratedTimestamp);
         if(isTokenInvalid){
             await this.getTokenB2B();
         }
@@ -62,10 +53,10 @@ class Snap{
         return a
     }
     async createVaV1(createVaRequestDtoV1){
-        var createVARequestDto = createVaRequestDtoV1.convertToCreateVaRequestDto();
+        let createVARequestDto = createVaRequestDtoV1.convertToCreateVaRequestDto();
         createVARequestDto.validateVaRequestDto();
-        var tokenController = new TokenController();
-        var isTokenInvalid = tokenController.isTokenInvalid(this.tokenB2B, this.tokenExpiresIn, this.tokenGeneratedTimestamp);
+        let tokenController = new TokenController();
+        let isTokenInvalid = tokenController.isTokenInvalid(this.tokenB2B, this.tokenExpiresIn, this.tokenGeneratedTimestamp);
         if(isTokenInvalid){
             await this.getTokenB2B();
         }
@@ -74,11 +65,11 @@ class Snap{
         return a
     }
     validateSignature(requestSignature,requestTimestamp){
-        var tokenController = new TokenController();
+        let tokenController = new TokenController();
         return tokenController.validateSignature(requestSignature,requestTimestamp,this.privateKey,this.clientId)
     }
     generateTokenB2B(isSignatureValid){
-        var tokenController = new TokenController();
+        let tokenController = new TokenController();
         if(isSignatureValid){
             return tokenController.generateTokenB2B(this.tokenExpiresIn, this.issuer, this.privateKey, this.clientId);
         }else{
@@ -90,11 +81,11 @@ class Snap{
         return this.generateTokenB2B(isSignatureValid)
     }
     validateTokenB2B(requestTokenB2B){
-        var tokenController = new TokenController();
+        let tokenController = new TokenController();
         return tokenController.validateTokenB2B(requestTokenB2B,this.publicKey)
     }
     generateNotificationResponse(isTokenValid, PaymentNotificationRequestBodyDto){
-        var notificationController = new NotificationController();
+        let notificationController = new NotificationController();
             if(isTokenValid){
                 if(PaymentNotificationRequestBodyDto){
                     return notificationController.generateNotificationResponse(PaymentNotificationRequestBodyDto)
@@ -108,6 +99,26 @@ class Snap{
     validateTokenAndGenerateNotificationResponse(requestTokenB2B,PaymentNotificationRequestBodyDto){
         const isTokenValid = this.validateTokenB2B(requestTokenB2B)
         return this.generateNotificationResponse(isTokenValid,PaymentNotificationRequestBodyDto)
+    }
+    async updateVa(updateVaRequestDto){
+        updateVaRequestDto.validateUpdateVaRequestDto()	
+        let tokenController = new TokenController();
+        let isTokenInvalid = tokenController.isTokenInvalid(this.tokenB2B, this.tokenExpiresIn, this.tokenGeneratedTimestamp);
+        if(isTokenInvalid){
+            await this.getTokenB2B();
+        }
+        let vaController = new VaController();
+        let updateVaResponseDto = await vaController.doUpdateVa(updateVaRequestDto, this.clientId, this.tokenB2B,this.secretKey,this.isProduction);
+        return updateVaResponseDto
+    }
+    async generateRequestHeader(){
+        let tokenController = new TokenController();
+        let isTokenInvalid = tokenController.isTokenInvalid(this.tokenB2B, this.tokenExpiresIn, this.tokenGeneratedTimestamp)
+        if(isTokenInvalid){
+            await this.getTokenB2B();
+        }
+        let requestHeaderDto = TokenController.doGenerateRequestHeader();
+        return requestHeaderDto
     }
 }
 module.exports = Snap;

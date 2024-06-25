@@ -13,3 +13,4 @@ class PaymentNotificationResponseBodyDto {
         };
     }
 }
+module.exports = PaymentNotificationResponseBodyDto;

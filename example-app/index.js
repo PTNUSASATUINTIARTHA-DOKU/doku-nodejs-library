@@ -4,6 +4,9 @@ const AdditionalInfo = require('../_models/additionalInfo');
 const TotalAmount = require('../_models/totalAmount');
 const VirtualAccountConfig = require('../_models/virtualAccountConfig');
 const CreateVaRequestDtoV1 = require('../_models/createVaRequestDTOV1');
+const UpdateVaDto = require('../_models/updateVaDTO.');
+const UpdateVaVirtualAccountConfigDto = require('../_models/updateVaVirtualAccountConfigDTO');
+const UpdateVaAdditionalInfoDto = require('../_models/updateVaAdditionalInfoDTO');
 const param = {
     "partnerServiceId": "    1899",
     "trxId": "INV_CIMB_"+Date.now(),
@@ -81,18 +84,32 @@ r4GK50j9BoPSJhiM6k236LSc5+iZRKRVUCFEfyMPx6AY+jD2flfGxUv2iULp92XG
 OrzKGlO90/6sNzIDd2DbRSM=
 -----END PRIVATE KEY-----`
 let clientID = 'BRN-0221-1693209567392'
-let snap;
+let secretKey = 'SK-tDzY6MSLBWlNXy3qCsUU'
+let publicKey = `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAr7gNEvkfERhKE8WWH5LHTWpt/4jays2P0ahmzeBn9I7iDfF51DPHRr+A1apl0METDHkNzf2NuqTAydb/4uhOQcFmrAQL3kpO25lAUGDFEc8a7wW730TbyMLWA2vnMd/R2pn4mGDh6uIWVUuhtpvEqgxITjcYR0JhD/RTx0joz0FikpYMa09wSiPREqUKH3MSkV94cn4ejHnVk5WaV1CayPW3egM4NxXecKXx0JS3CkkfF69hKx+3TUuCNtQ0x0fuqsdNk6HL+Q99Dg2pgOshvYcZxRES1RPvBpyROdmI47JuaLRkcIx0uJ4EkoXPwJNWcpLGgkxZdMRMEydaHhEn3wIDAQAB
+-----END PUBLIC KEY-----`
+let snap = new doku.Snap({
+    isProduction : false,
+    privateKey : privateKey,
+    clientID : clientID,
+    publicKey :publicKey,
+    issuer:"PT MPE",
+    secretKey:secretKey
+});;
 
-function initializeSnap() {
-    snap = new doku.Snap({
-        isProduction : false,
-        privateKey : privateKey,
-        clientID : clientID
-    });
-}
+// function initializeSnap() {
+//     snap = new doku.Snap({
+//         isProduction : false,
+//         privateKey : privateKey,
+//         clientID : clientID,
+//         publicKey :publicKey,
+//         issuer:"PT MPE",
+//         secretKey:secretKey
+//     });
+// }
 
 async function start(){
-    initializeSnap();
+    // initializeSnap();
 
     
     let createVaRequestDto = new CreateVARequestDto()
@@ -128,6 +145,8 @@ async function start(){
 
     await snap.createVa(createVaRequestDto).then(va=>{
         console.log(va)
+    }).catch(err=>{
+        console.log(err.response.data.error)
     })
 
 }
@@ -139,8 +158,8 @@ async function createVaV1(){
     let createVaRequestDto = new CreateVaRequestDtoV1()
     // dgpc
     createVaRequestDto.partnerServiceId = "    1899"; 
-
-    
+    createVaRequestDto.basket={"product":"1"}
+    createVaRequestDto.country="ID"
     createVaRequestDto.name = "T_"+Date.now();
     createVaRequestDto.email = "test.bnc."+Date.now()+"@test.com";
     createVaRequestDto.mobilephone = "00000062"+Date.now(),"INV_CIMB_"+Date.now();
@@ -156,5 +175,49 @@ async function createVaV1(){
 
 }
 
-createVaV1();
+
+async function updateVa(){
+    let updateVaRequestDto = new UpdateVaDto()
+    updateVaRequestDto.partnerServiceId = "    1899"; 
+    updateVaRequestDto.customerNo = "000000000375";
+    updateVaRequestDto.virtualAccountNo = updateVaRequestDto.partnerServiceId+updateVaRequestDto.customerNo;
+    
+    
+    updateVaRequestDto.virtualAccountName = "T_1718867012059";
+    updateVaRequestDto.virtualAccountEmail = "test.bnc.1718867012059@test.com";
+    updateVaRequestDto.trxId = "INV_CIMB_1718867012059"
+
+    let totalAmount = new TotalAmount();
+    totalAmount.value = "12500.00";
+    totalAmount.currency = "IDR";
+
+    updateVaRequestDto.totalAmount = totalAmount;
+    let virtualAccountConfig = new UpdateVaVirtualAccountConfigDto();
+    virtualAccountConfig.status = "INACTIVE";
+
+    let additionalInfo = new UpdateVaAdditionalInfoDto("VIRTUAL_ACCOUNT_BANK_CIMB", virtualAccountConfig);
+    additionalInfo.channel = "VIRTUAL_ACCOUNT_BANK_CIMB";
+    additionalInfo.virtualAccountConfig = virtualAccountConfig;
+    updateVaRequestDto.additionalInfo = additionalInfo;
+    updateVaRequestDto.virtualAccountTrxType = "1";
+    updateVaRequestDto.expiredDate = "2024-06-24T09:54:04+07:00";
+    console.log(updateVaRequestDto)
+    await snap.updateVa(updateVaRequestDto).then(va=>{
+        //you can get response from update va here
+    }).catch((err)=>{
+        //  You can manage error response here
+    })
+
+}
+async function getToken(){
+    await snap.getTokenB2B().then(res=>{
+        console.log(res)
+    }).catch((err)=>{
+        console.log(err)
+    })
+}
+
+// createVaV1();
 // start()
+// updateVa()
+// getToken()

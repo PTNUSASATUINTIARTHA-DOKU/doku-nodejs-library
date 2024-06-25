@@ -1,6 +1,7 @@
 "use strict"
 
 const TokenService = require("../_services/tokenService");
+const vaService = require("../_services/vaService");
 
 class TokenController{
 
@@ -39,7 +40,12 @@ class TokenController{
     validateTokenB2B(requestTokenB2B, publicKey){
         return TokenService.validateTokenB2B(requestTokenB2B, publicKey)
     }
-
+    doGenerateRequestHeader(privateKey, clientId, tokenB2B){
+        const externalId = vaService.generateExternalId();
+        const timestamp = TokenService.generateTimestamp();
+        const signature =  TokenService.createSignature(privateKey, clientId, timestamp);
+        return vaService.createVaRequesHeaderDto(channelId,clientId,tokenB2B, timestamp, externalId, signature);
+    }
 
 }
   

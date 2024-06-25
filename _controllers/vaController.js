@@ -1,13 +1,15 @@
 "use strict"
 
+const Config = require("../_commons/config");
 const tokenService = require("../_services/tokenService");
+const vaService = require("../_services/vaService");
 const VaService = require("../_services/vaService");
 
 class VaController{
 
     async createVa(createVaRequestDto,privateKey, clientId, tokenB2B, isProduction){
         let timestamp = tokenService.generateTimestamp();
-        let header = VaService.createVaRequestHeaderDto(createVaRequestDto, privateKey, clientId,tokenB2B,timestamp);
+        let header = VaService.generateRequestHeaderDto(createVaRequestDto.additionalInfo.channel, privateKey, clientId,tokenB2B,timestamp);
         return await VaService.createVa(header, createVaRequestDto, isProduction)
     }
     isTokenInvalid(tokenB2B, tokenExpiresIn, tokenGeneratedTimestamp){
@@ -20,6 +22,15 @@ class VaController{
                 return false
             }
         }
+    }
+   async doUpdateVa(updateVaRequestDto,clientId, tokenB2B, secretKey,isProduction){
+        let timestamp = tokenService.generateTimestamp();
+        let endPointUrl = Config.CREATE_VA;
+        let httpMethod = "POST"
+        let signature = tokenService.generateSymmetricSignature(httpMethod,endPointUrl,tokenB2B,updateVaRequestDto,timestamp,secretKey);
+        let externalId = vaService.generateExternalId();
+        let header = VaService.createVaRequesHeaderDto(updateVaRequestDto.additionalInfo.channel, clientId,tokenB2B,timestamp,externalId,signature);
+        return await vaService.doUpdateVa(header,updateVaRequestDto,isProduction)
     }
 }
   

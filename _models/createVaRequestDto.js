@@ -27,7 +27,7 @@ class CreateVARequestDto {
             partnerServiceId: Joi.string().length(8).pattern(/^\s{0,7}\d{1,8}$/).required(),
             virtualAccountName: Joi.string().min(1).max(255).pattern(/^[a-zA-Z0-9.\\\-\/+,=_:'@% ]*$/).required(),
             virtualAccountEmail: Joi.string().email().max(255).required(),
-            virtualAccountPhone: Joi.string().required(),
+            virtualAccountPhone: Joi.string().min(9).max(30).required(),
             trxId: Joi.string().min(1).max(64).required(),
             totalAmount: Joi.object({
                 value: Joi.string().min(4).max(19).pattern(/^(0|[1-9]\d{0,15})(\.\d{2})?$/).required(),
@@ -45,11 +45,17 @@ class CreateVARequestDto {
     
         let schema;
         if (this.customerNo && this.virtualAccountNo) {
-            console.log("mask")
             schema = Joi.object({
                 ...commonSchema,
                 customerNo: Joi.string().max(20).pattern(/^\d+$/).required(),
-                virtualAccountNo: Joi.string().required(),
+                virtualAccountNo:Joi.string().required().custom((value, helpers) => {
+                    const { partnerServiceId, customerNo } = helpers.state.ancestors[0];
+                    const expectedValue = `${partnerServiceId}${customerNo}`;
+                    if (value !== expectedValue) {
+                        throw new Error(`virtualAccountNo must be equal to partnerServiceId + customerNo (${expectedValue})`);
+                    }
+                    return value;
+                })
             });
         } else {
             schema = Joi.object({

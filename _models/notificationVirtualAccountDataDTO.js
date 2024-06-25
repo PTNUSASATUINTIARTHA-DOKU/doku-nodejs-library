@@ -17,3 +17,4 @@ class NotificationVirtualAccountData {
         };
     }
 }
+module.exports = NotificationVirtualAccountData

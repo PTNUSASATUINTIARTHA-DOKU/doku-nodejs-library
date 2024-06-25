@@ -3,9 +3,13 @@ const { default: axios } = require('axios');
 const KJUR = require('jsrsasign');
 const config = require('../_commons/config');
 const jwt = require('jsonwebtoken');
+const { createHmac } = require('crypto');
 const NotificationTokenDto = require('../_models/notificationTokenDTO');
 const NotificationTokenBodyDto = require('../_models/NotificationTokenBodytDto');
 const NotificationTokenHeaderDto = require('../_models/notificationTokenHeaderDTO');
+const crypto = require('crypto');
+const CryptoJS = require('crypto-js');
+const TokenB2BResponseDTO = require('../_models/tokenB2BResponseDTO');
 
 module.exports = {
     hexToBase64(hexString) {
@@ -72,7 +76,7 @@ module.exports = {
         let body = {
             grantType : createTokenB2BRequestDTO.grantType
         }
-
+        console.log(header)
         return await new Promise((resolve, reject) => {
             axios({
                 method: 'post',
@@ -81,7 +85,8 @@ module.exports = {
                 data: body
             })
             .then((res) => {
-                resolve(res.data);
+                let response = new TokenB2BResponseDTO(res.data)
+                resolve(response);
             })
             .catch((err) => {
                 reject(err);
@@ -118,7 +123,21 @@ module.exports = {
             const claims = jwt.verify(requestTokenB2B, publicKey);
             return claims
         } catch (err) {
-            console.error('Invalid token', err);
+            throw new Error('Invalid token', err);
         }
+    },
+    minifyJSON(jsonString) {
+        // This function removes all unnecessary whitespace from JSON string.
+        return jsonString.replace(/\s+/g, '');
+    },
+    generateSymmetricSignature(httpMethod, endPointUrl, tokenB2B, updateVaRequestDto, timestamp, clientSecret) {
+        const minifiedJson = this.minifyJSON(JSON.stringify(updateVaRequestDto));
+        const hash = CryptoJS.SHA256(minifiedJson).toString(CryptoJS.enc.Hex);
+        const lowercaseHexHash = hash.toLowerCase();
+        const strToSign = `${httpMethod}:${endPointUrl}:${tokenB2B}:${lowercaseHexHash}:${timestamp}`;
+        const hmac = crypto.createHmac('sha512', clientSecret);
+        hmac.update(strToSign);
+        const signature = hmac.digest('base64');
+        return signature;
     }
 };

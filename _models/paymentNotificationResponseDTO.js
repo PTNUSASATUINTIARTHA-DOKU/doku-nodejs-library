@@ -11,3 +11,4 @@ class PaymentNotificationResponseDTO {
         };
     }
 }
+module.exports = PaymentNotificationResponseDTO;
