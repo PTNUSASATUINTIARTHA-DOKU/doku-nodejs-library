@@ -93,7 +93,7 @@ let snap = new doku.Snap({
     privateKey : privateKey,
     clientID : clientID,
     publicKey :publicKey,
-    issuer:"PT MPE",
+    issuer:"PT DOKU",
     secretKey:secretKey
 });;
 
