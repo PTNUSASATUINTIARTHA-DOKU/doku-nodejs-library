@@ -32,6 +32,22 @@ class VaController{
         let header = VaService.createVaRequesHeaderDto(updateVaRequestDto.additionalInfo.channel, clientId,tokenB2B,timestamp,externalId,signature);
         return await vaService.doUpdateVa(header,updateVaRequestDto,isProduction)
     }
+    async doDeletePaymentCode(deleteVaRequestDto, privateKey, clientId, tokenB2B,isProduction){
+
+        let timestamp = tokenService.generateTimestamp();
+        let signature = tokenService.generateSignature(privateKey, clientId, timestamp)
+        let externalId = vaService.generateExternalId();
+        let header = vaService.createVaRequesHeaderDto(deleteVaRequestDto.additionalInfo.channel, clientId, tokenB2B, timestamp, externalId, signature)
+        return vaService.doDeletePaymentCode(header, deleteVaRequestDto,isProduction)
+    }
+    async doCheckStatusVa(checkVARequestDTO, privateKey,clientId, tokenB2B,isProduction){
+        let timestamp = tokenService.generateTimestamp();
+        let signature = tokenService.generateSignature(privateKey, clientId, timestamp)
+        let externalId = vaService.generateExternalId();
+        let header = vaService.createVaRequesHeaderDto(checkVARequestDTO.additionalInfo?.channel, clientId, tokenB2B, timestamp, externalId, signature)
+        return vaService.doCheckStatusVa(header, checkVARequestDTO,isProduction)
+    }
+    
 }
   
 module.exports = VaController;

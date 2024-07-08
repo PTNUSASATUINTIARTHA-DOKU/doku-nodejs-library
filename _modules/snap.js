@@ -120,5 +120,25 @@ class Snap{
         let requestHeaderDto = TokenController.doGenerateRequestHeader();
         return requestHeaderDto
     }
+    async deletePaymentCode(deleteVaRequestDto){
+        let tokenController = new TokenController();
+        let isTokenInvalid = tokenController.isTokenInvalid(this.tokenB2B, this.tokenExpiresIn, this.tokenGeneratedTimestamp)
+        if(isTokenInvalid){
+            await this.getTokenB2B();
+        }
+        let vaController = new VaController();
+        let doDeletePaymentCode = await vaController.doDeletePaymentCode(deleteVaRequestDto, this.privateKey, this.clientId, this.tokenB2B,this.isProduction);
+        return doDeletePaymentCode;
+    }
+    async checkStatusVa(checkVARequestDTO){
+        let tokenController = new TokenController();
+        let isTokenInvalid = tokenController.isTokenInvalid(this.tokenB2B, this.tokenExpiresIn, this.tokenGeneratedTimestamp)
+        if(isTokenInvalid){
+            await this.getTokenB2B();
+        }
+        let vaController = new VaController();
+        let checkStatus = await vaController.doCheckStatusVa(checkVARequestDTO,this.privateKey,  this.clientId, this.tokenB2B,this.isProduction);
+        return checkStatus;
+    }
 }
 module.exports = Snap;

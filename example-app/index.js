@@ -1,12 +1,16 @@
 const doku = require('../index');
-const CreateVARequestDto = require('../_models/createVaRequestDto');
-const AdditionalInfo = require('../_models/additionalInfo');
-const TotalAmount = require('../_models/totalAmount');
-const VirtualAccountConfig = require('../_models/virtualAccountConfig');
-const CreateVaRequestDtoV1 = require('../_models/createVaRequestDTOV1');
+const CreateVARequestDto = require('doku-nodejs-library/_models/createVaRequestDto');
+const AdditionalInfo = require('doku-nodejs-library/_models/additionalInfo');
+const TotalAmount = require('doku-nodejs-library/_models/totalAmount');
+const VirtualAccountConfig = require('doku-nodejs-library/_models/virtualAccountConfig');
+const CreateVaRequestDtoV1 = require('doku-nodejs-library/_models/createVaRequestDTOV1');
 const UpdateVaDto = require('../_models/updateVaDTO.');
 const UpdateVaVirtualAccountConfigDto = require('../_models/updateVaVirtualAccountConfigDTO');
 const UpdateVaAdditionalInfoDto = require('../_models/updateVaAdditionalInfoDTO');
+const Doku = require('doku-nodejs-library');
+const DeleteVaRequestDto = require('../_models/deleteVaRequestDTO');
+const DeleteVaRequestAdditionalInfo = require('../_models/deleteVaRequestAdditionalInfoDTO');
+const CheckStatusVARequestDto = require('../_models/checkStatusVARequestDTO');
 const param = {
     "partnerServiceId": "    1899",
     "trxId": "INV_CIMB_"+Date.now(),
@@ -141,12 +145,12 @@ async function start(){
     additionalInfo.virtualAccountConfig = virtualAccountConfig;
     createVaRequestDto.additionalInfo = additionalInfo;
     createVaRequestDto.virtualAccountTrxType = "1";
-    createVaRequestDto.expiredDate = "2024-06-24T09:54:04+07:00";
+    createVaRequestDto.expiredDate = "2024-07-24T09:54:04+07:00";
 
     await snap.createVa(createVaRequestDto).then(va=>{
         console.log(va)
     }).catch(err=>{
-        console.log(err.response.data.error)
+        console.log(err.response.data)
     })
 
 }
@@ -216,8 +220,38 @@ async function getToken(){
         console.log(err)
     })
 }
+async function deletePaymentCode(){
+    let deleteVaRequestDto = new DeleteVaRequestDto()
+    deleteVaRequestDto.partnerServiceId =  "    1899"; 
+    deleteVaRequestDto.customerNo =  "000000000525";
+    deleteVaRequestDto.virtualAccountNo = deleteVaRequestDto.partnerServiceId+deleteVaRequestDto.customerNo
+   
+    deleteVaRequestDto.trxId = "INV_CIMB_1720401673205"
+    let additionalInfo = new DeleteVaRequestAdditionalInfo("VIRTUAL_ACCOUNT_BANK_CIMB");
+    deleteVaRequestDto.additionalInfo = additionalInfo;
+    await snap.deletePaymentCode(deleteVaRequestDto).then(response=>{
+        console.log("ini sample")
+        console.log(response)
+    }).catch((err)=>{
+        console.log(err.response)
+    })
+}
+async function checkStatusVa(){
+    let checkVaRequestDto = new CheckStatusVARequestDto()
+    checkVaRequestDto.partnerServiceId =  "    1899"; 
+    checkVaRequestDto.customerNo =  "000000000526";
+    checkVaRequestDto.virtualAccountNo = checkVaRequestDto.partnerServiceId+checkVaRequestDto.customerNo
+    await snap.checkStatusVa(checkVaRequestDto).then(response=>{
+        // console.log("ini sample")
+        console.log(response)
+    }).catch((err)=>{
+        console.log(err)
+    })
+}
 
 // createVaV1();
 // start()
+// deletePaymentCode()
+checkStatusVa()
 // updateVa()
 // getToken()

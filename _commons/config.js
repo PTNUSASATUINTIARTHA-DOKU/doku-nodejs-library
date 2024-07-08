@@ -13,6 +13,8 @@ class Config{
   static ACCESS_TOKEN = '/authorization/v1/access-token/b2b';
   static CREATE_VA = '/virtual-accounts/bi-snap-va/v1/transfer-va/create-va';
   static UPDATE_VA = '/virtual-accounts/bi-snap-va/v1/transfer-va/update-va';
-  static PUT_UPDATE_VA = '/virtual-accounts/bi-snap-va/v1.1/transfer-va/update-va'
+  static PUT_UPDATE_VA = '/virtual-accounts/bi-snap-va/v1.1/transfer-va/update-va';
+  static DELETE_VA = '/virtual-accounts/bi-snap-va/v1.1/transfer-va/delete-va';
+  static CHECK_STATUS_VA = '/orders/v1.0/transfer-va/status'
 }
 module.exports = Config;
