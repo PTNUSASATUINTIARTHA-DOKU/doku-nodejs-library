@@ -1,6 +1,6 @@
 const doku = require('../index');
 const CreateVARequestDto = require('doku-nodejs-library/_models/createVaRequestDto');
-const AdditionalInfo = require('doku-nodejs-library/_models/additionalInfo');
+const AdditionalInfo = require('../_models/additionalInfo');
 const TotalAmount = require('doku-nodejs-library/_models/totalAmount');
 const VirtualAccountConfig = require('doku-nodejs-library/_models/virtualAccountConfig');
 const CreateVaRequestDtoV1 = require('doku-nodejs-library/_models/createVaRequestDTOV1');
@@ -11,54 +11,8 @@ const Doku = require('doku-nodejs-library');
 const DeleteVaRequestDto = require('../_models/deleteVaRequestDTO');
 const DeleteVaRequestAdditionalInfo = require('../_models/deleteVaRequestAdditionalInfoDTO');
 const CheckStatusVARequestDto = require('../_models/checkStatusVARequestDTO');
-const param = {
-    "partnerServiceId": "    1899",
-    "trxId": "INV_CIMB_"+Date.now(),
-    "virtualAccountTrxType": "1",
-    "totalAmount": {
-        "value": "12500.00",
-        "currency": "IDR"
-    },
-    "feeAmount": {
-        "value": "1000.00",
-        "currency": "IDR"
-    },
-    "expiredDate": "2024-04-22T09:54:04+07:00",
-    "virtualAccountName": "T_"+Date.now(),
-    "virtualAccountEmail": "test.bnc."+Date.now()+"@test.com",
-    "virtualAccountPhone": "628"+Date.now(),
-    "billDetails": [
-        {
-            "billCode": "01",
-            "billNo": `${Date.now()}`,
-            "billName": "Bill A for Jan",
-            "billShortName": "Bill A",
-            "billDescription": {
-                "english": "Maintenance",
-                "indonesia": "Pemeliharaan"
-            },
-            "billSubCompany": "00001",
-            "billAmount": {
-                "value": "10000.00",
-                "currency": "IDR"
-            },
-            "additionalInfo": {}
-        }
-    ],
-    "freeTexts": [
-        {
-            "english": "Free text",
-            "indonesia": "Tulisan bebas"
-        }
-    ],
-    "additionalInfo": {
-        "channel": "VIRTUAL_ACCOUNT_BANK_CIMB",
-        "virtualAccountConfig": {
-            "reusableStatus": false
-        }
-    }
-}
 
+// UAT clientID
 let privateKey = `-----BEGIN PRIVATE KEY-----
 MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCvuA0S+R8RGEoT
 xZYfksdNam3/iNrKzY/RqGbN4Gf0juIN8XnUM8dGv4DVqmXQwRMMeQ3N/Y26pMDJ
@@ -88,10 +42,47 @@ r4GK50j9BoPSJhiM6k236LSc5+iZRKRVUCFEfyMPx6AY+jD2flfGxUv2iULp92XG
 OrzKGlO90/6sNzIDd2DbRSM=
 -----END PRIVATE KEY-----`
 let clientID = 'BRN-0221-1693209567392'
-let secretKey = 'SK-tDzY6MSLBWlNXy3qCsUU'
 let publicKey = `-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAr7gNEvkfERhKE8WWH5LHTWpt/4jays2P0ahmzeBn9I7iDfF51DPHRr+A1apl0METDHkNzf2NuqTAydb/4uhOQcFmrAQL3kpO25lAUGDFEc8a7wW730TbyMLWA2vnMd/R2pn4mGDh6uIWVUuhtpvEqgxITjcYR0JhD/RTx0joz0FikpYMa09wSiPREqUKH3MSkV94cn4ejHnVk5WaV1CayPW3egM4NxXecKXx0JS3CkkfF69hKx+3TUuCNtQ0x0fuqsdNk6HL+Q99Dg2pgOshvYcZxRES1RPvBpyROdmI47JuaLRkcIx0uJ4EkoXPwJNWcpLGgkxZdMRMEydaHhEn3wIDAQAB
 -----END PUBLIC KEY-----`
+let secretKey = 'SK-tDzY6MSLBWlNXy3qCsUU';
+
+
+// sandbox clientID
+// let clientID = 'BRN-0208-1720408264694';
+// let privateKey = `-----BEGIN PRIVATE KEY-----
+// MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCcitNlkg8kjOoG
+// jYQZekSTiJlor8gzWrGZN18gcB6uijc7BaL7mGb67ENyz2KMXAiAq4IwnOXcVPYL
+// Fs4rCJq2JkyerO79F2YKm7aDwLTTMQmYsIiBH5JIxf/qb7AxVyz50V2X0ldxCtoL
+// OTIJ9VkHfQDFQECG3TJXnBfj9otRRNoJ+0uT2vDOWJrj2dF0LJN7PYcpBVEsFRJh
+// spPRcSyZn7XS+XKR2oRMI2wM2CcpnyvCig1XJSIl1ybHruKvBkEPbiGkgeam1mGD
+// k4d3AT40IECyTawC5ClME2eU6ALAwcT8I65DKY8uH1+oVXQNwjoDrIQ1ymDVN4mA
+// XuXHckwBAgMBAAECggEACjIej6yCMPq+mVupQXGNuuA4QbHFQ9cB3z1UhEvZK7wT
+// 2dPFqEZmWqx9viIUxJiP8zV4fssRS5b7CYDcP8BJN1jqP6F61WArRMCclBs+i8zT
+// V68TzPkt8XB3+SB6JNSNON4yjttj15iB2B5LDIv+1vaE0NQc/8uzZjJj+fSKYWoV
+// AQk3m+vn1pPsTOBiTd+yqaXra5jeVdcP1CK3vRLsGOp1Pe9aUxB3bI15OzudRyGv
+// UoyvfPSIMQwwDIAeL/VrQnOFK+eBPBBrLZUsM0urgdnm5nSAbN+TFsYqaxzMLR8P
+// wkBWaq7lG4e/FyeVoPf7t6/KR+Io9wJiIdvQTV6imQKBgQDRVL/g7qKMHBxGFzQd
+// B9XDJMxd5gom075aR4Q5vaYv0vy9y4omlC9iYG+Y021EppyafGznM4gfoN1GQ0F0
+// j0QrDga4fbzInStmKvFgQ37CvoNXy9rAdg0vX0igW4ptPpP/xfsMjOUAXxQXceCU
+// J03DWDKXrdNc7HUb6nC6lqVnFQKBgQC/cTzv7gcy6ypgU5QIEmCtaXLtIvADpjED
+// 5dnLtgN5DV91WgN6RBc8m6xIAwAKQoo7YHErraSOy1zy264SNX4P5VlmP0nzsRtU
+// Olr6CuKK9iSld74Lhh9lvNt/3jjFwzyPqnFmfHbE0e58ueEry16uho/JWIdh4PEj
+// tn/lfVTMPQKBgQDEmxWwfFE8yPYhOo/eqEo0A27SzklAmGVTQ5JD7QSWLFLnK7Ew
+// dMNgYXTPE9yvutChJDXgnHzAQAUzhd2HTTvYOE9FngreXQey6KhWIm5/GBIiNrvZ
+// Qcc2dAaxXejQnBLDCr601ewLgkFLl9A3NgcKbt7tqPw4bXm8Y1/HT9A/1QKBgQCT
+// BUnBENGifwtqMoVqtYJdarACAWTFyKm3zps2YK/GFUkL/HbTPNuDhiIGo5cySeuS
+// sfv3iUDpELBvKdpCzaXkW0QOy+flKExOoQohIJ7eDS4TjSP8AaK3JRSE3IpJBijK
+// RCEWjdtAR+CZFL8iPOqXqWtfO4es2W0W+h66hUfMGQKBgAg1615yEBgSxJvU0CX2
+// JuLMX9OvqBqLGeSE333/DGneZo8ZvHa+po5ntCGYKNQBRk/Mv+qA6NbhDPVhW14o
+// Nae6lR1M6gEhnle8jcEd9gckfGmB6RGKcgfgqXCr1xz0AGbBLmN6pqmhbewlpOcO
+// lL18rTv2hNvvzmApjjAnoA7B
+// -----END PRIVATE KEY-----`;
+// let publicKey =`-----BEGIN PUBLIC KEY-----
+// MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnIrTZZIPJIzqBo2EGXpEk4iZaK/IM1qxmTdfIHAeroo3OwWi+5hm+uxDcs9ijFwIgKuCMJzl3FT2CxbOKwiatiZMnqzu/RdmCpu2g8C00zEJmLCIgR+SSMX/6m+wMVcs+dFdl9JXcQraCzkyCfVZB30AxUBAht0yV5wX4/aLUUTaCftLk9rwzlia49nRdCyTez2HKQVRLBUSYbKT0XEsmZ+10vlykdqETCNsDNgnKZ8rwooNVyUiJdcmx67irwZBD24hpIHmptZhg5OHdwE+NCBAsk2sAuQpTBNnlOgCwMHE/COuQymPLh9fqFV0DcI6A6yENcpg1TeJgF7lx3JMAQIDAQAB
+// -----END PUBLIC KEY-----`
+// let secretKey = 'SK-VknOxwR4xZSEPnG7fpJo'
+
 let snap = new doku.Snap({
     isProduction : false,
     privateKey : privateKey,
@@ -112,9 +103,7 @@ let snap = new doku.Snap({
 //     });
 // }
 
-async function start(){
-    // initializeSnap();
-
+async function createVa(){
     
     let createVaRequestDto = new CreateVARequestDto()
     // dgpc
@@ -146,11 +135,11 @@ async function start(){
     createVaRequestDto.additionalInfo = additionalInfo;
     createVaRequestDto.virtualAccountTrxType = "1";
     createVaRequestDto.expiredDate = "2024-07-24T09:54:04+07:00";
-
+    console.log(createVaRequestDto)
     await snap.createVa(createVaRequestDto).then(va=>{
         console.log(va)
     }).catch(err=>{
-        console.log(err.response.data)
+        console.log(err)
     })
 
 }
@@ -217,7 +206,7 @@ async function getToken(){
     await snap.getTokenB2B().then(res=>{
         console.log(res)
     }).catch((err)=>{
-        console.log(err)
+        console.log(err.response)
     })
 }
 async function deletePaymentCode(){
@@ -239,7 +228,7 @@ async function deletePaymentCode(){
 async function checkStatusVa(){
     let checkVaRequestDto = new CheckStatusVARequestDto()
     checkVaRequestDto.partnerServiceId =  "    1899"; 
-    checkVaRequestDto.customerNo =  "000000000526";
+    checkVaRequestDto.customerNo =  "000000000527";
     checkVaRequestDto.virtualAccountNo = checkVaRequestDto.partnerServiceId+checkVaRequestDto.customerNo
     await snap.checkStatusVa(checkVaRequestDto).then(response=>{
         // console.log("ini sample")
@@ -250,8 +239,9 @@ async function checkStatusVa(){
 }
 
 // createVaV1();
-// start()
+// getToken()
+createVa()
 // deletePaymentCode()
-checkStatusVa()
+// checkStatusVa()
 // updateVa()
 // getToken()

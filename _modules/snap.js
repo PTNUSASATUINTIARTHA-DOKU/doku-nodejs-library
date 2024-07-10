@@ -49,7 +49,7 @@ class Snap{
         }
         
         let vaController = new VaController()
-        let a = await vaController.createVa(createVARequestDto, this.privateKey, this.clientId, this.tokenB2B,this.isProduction);
+        let a = await vaController.createVa(createVARequestDto, this.privateKey, this.clientId, this.tokenB2B,this.isProduction,this.secretKey);
         return a
     }
     async createVaV1(createVaRequestDtoV1){

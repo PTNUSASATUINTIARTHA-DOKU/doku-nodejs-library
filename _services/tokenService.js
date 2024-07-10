@@ -27,6 +27,7 @@ module.exports = {
         return token;
     },
     generateSignature(privateKey,clientID,xTimestamp) {
+        console.log(privateKey,clientID,xTimestamp)
         try {
             const signatureElements = `${clientID}|${xTimestamp}`;
             const kjurSignature = new KJUR.crypto.Signature({"alg": "SHA256withRSA"});

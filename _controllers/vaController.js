@@ -7,10 +7,16 @@ const VaService = require("../_services/vaService");
 
 class VaController{
 
-    async createVa(createVaRequestDto,privateKey, clientId, tokenB2B, isProduction){
+    async createVa(createVaRequestDto,privateKey, clientId, tokenB2B, isProduction,secretKey){
         let timestamp = tokenService.generateTimestamp();
-        let header = VaService.generateRequestHeaderDto(createVaRequestDto.additionalInfo.channel, privateKey, clientId,tokenB2B,timestamp);
-        return await VaService.createVa(header, createVaRequestDto, isProduction)
+        let signature = tokenService.generateSignature(privateKey, clientId, timestamp)
+        // let endPointUrl = Config.CREATE_VA;
+        // let httpMethod = "POST"
+        // let signature = tokenService.generateSymmetricSignature(httpMethod,endPointUrl,tokenB2B,createVaRequestDto,timestamp,secretKey);
+        let externalId = vaService.generateExternalId();
+        let header = vaService.createVaRequesHeaderDto(createVaRequestDto.additionalInfo.channel, clientId, tokenB2B, timestamp, externalId, signature);
+        
+        return VaService.createVa(header, createVaRequestDto, isProduction)
     }
     isTokenInvalid(tokenB2B, tokenExpiresIn, tokenGeneratedTimestamp){
         if(TokenService.isTokenEmpty(tokenB2B)){

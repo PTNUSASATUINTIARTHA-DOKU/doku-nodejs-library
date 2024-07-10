@@ -8,6 +8,7 @@ class Config{
       Config.CORE_SANDBOX_BASE_URL;
       
   }
+  // static CORE_SANDBOX_BASE_URL = 'https://api-sandbox.doku.com';
   static CORE_SANDBOX_BASE_URL = 'https://api-uat.doku.com';
   static CORE_PRODUCTION_BASE_URL = 'https://dashboard.doku.com';
   static ACCESS_TOKEN = '/authorization/v1/access-token/b2b';

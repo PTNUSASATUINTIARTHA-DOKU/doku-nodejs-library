@@ -35,7 +35,7 @@ module.exports = {
             xSignature:signature,
             xPartnerId:clientId,
             xExternalId:externalId,
-            channelId:channelId,
+            channelId:"SDK",
             authorization: tokenB2B
         }
     },
@@ -50,6 +50,7 @@ module.exports = {
             "X-EXTERNAL-ID": requestHeaderDto.xExternalId,
             "CHANNEL-ID":requestHeaderDto.channelId
         }
+        // console.log(header)
         return await new Promise((resolve, reject) => {
             axios({
                 method: 'post',
@@ -58,10 +59,12 @@ module.exports = {
                 data:createVaRequestDto.toObject()
             })
             .then((res) => {
+                console.log(res.data)
                 let response = new CreateVAResponseDTO(res.data);
                 resolve(response);
             })
             .catch((err) => {
+                console.log(err)
                 reject(err);
             });
         });
@@ -100,7 +103,6 @@ module.exports = {
     async doDeletePaymentCode(requestHeaderDto, deleteVaRequestDto,isProduction){
         //call api
         const base_url_api = config.getBaseUrl(isProduction) + config.DELETE_VA;
-
         let header= {
             "X-PARTNER-ID": requestHeaderDto.xPartnerId,
             "X-TIMESTAMP": requestHeaderDto.xTimestamp,
