@@ -1,6 +1,6 @@
 {
   "name": "doku-nodejs-library",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "doku nodejs library",
   "main": "index.js",
   "scripts": {
