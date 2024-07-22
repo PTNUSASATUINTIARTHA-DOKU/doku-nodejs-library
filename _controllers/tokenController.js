@@ -16,16 +16,36 @@ class TokenController{
             }
         }
     }
-
-    validateSignature(requestSignature, requestTimestamp, privateKey,clientId){
-        const signature = TokenService.generateSignature(privateKey, clientId, requestTimestamp);
+    validateSignature(privateKey, clientId, request){
+        let timestamp = request.get('x-timestamp');
+        const signature = TokenService.generateSignature(privateKey, clientId, timestamp);
+        // const signature = TokenService.asymmetricSignature(privateKey, clientId, timestamp)
+        let requestSignature = request.get('x-signature');
+        return TokenService.compareSignatures(requestSignature,signature)
+    }
+    validateSignatureSymmetric(request, tokenB2B,secretKey,endPointUrl){
+        let timestamp = request.get('x-timestamp');
+        // console.log("token : "+ tokenB2B)
+        let symetricSignatureComponentDTO = {
+            httpMethod: 'POST',
+            endpointUrl: endPointUrl,
+            accessToken: tokenB2B,
+            requestBody: request.body,
+            timestamp: timestamp,
+            clientSecret: secretKey
+        };
+        // let signature = TokenService.createSymetricSignature(symetricSignatureComponentDTO)
+        let signature = TokenService.generateSymmetricSignature(symetricSignatureComponentDTO);
+        // console.log("signature : "+signature)
+        let requestSignature = request.get('x-signature');
         return TokenService.compareSignatures(requestSignature,signature)
     }
 
     async getTokenB2B(privateKey, clientId, isProduction){
-        const xTimestamp = TokenService.generateTimestamp(); 
+       const xTimestamp = TokenService.generateTimestamp(); 
         const signature = TokenService.generateSignature(privateKey, clientId, xTimestamp);
         const createTokenB2BRequestDTO = TokenService.createTokenB2BRequestDTO(signature, xTimestamp, clientId);
+        console.log(createTokenB2BRequestDTO)
         return await TokenService.createTokenB2B(createTokenB2BRequestDTO,isProduction);
     }
     generateInvalidSignatureResponse(){

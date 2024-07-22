@@ -3,9 +3,10 @@ const { default: axios } = require('axios');
 const KJUR = require('jsrsasign');
 const config = require('../_commons/config');
 const jwt = require('jsonwebtoken');
+const jsonminify = require('jsonminify');
 const { createHmac } = require('crypto');
 const NotificationTokenDto = require('../_models/notificationTokenDTO');
-const NotificationTokenBodyDto = require('../_models/notificationTokenBodytDto');
+const NotificationTokenBodyDto = require('../_models/notificationTokenBodytDTO');
 const NotificationTokenHeaderDto = require('../_models/notificationTokenHeaderDTO');
 const crypto = require('crypto');
 const CryptoJS = require('crypto-js');
@@ -15,6 +16,12 @@ module.exports = {
     hexToBase64(hexString) {
         const buffer = Buffer.from(hexString, 'hex');
         return buffer.toString('base64');
+    },
+    sha256Base64(message) {
+        return crypto.createHash('sha256').update(message).digest('base64');
+    },
+    hmacSHA256(message, secretKey) {
+        return crypto.createHmac('sha256', secretKey).update(message).digest('hex');
     },
     generateToken(expiredIn, issuer, privateKey, clientId) {
        const expiration = Math.floor(Date.now() / 1000) + expiredIn;
@@ -27,20 +34,34 @@ module.exports = {
         return token;
     },
     generateSignature(privateKey,clientID,xTimestamp) {
-        console.log(privateKey,clientID,xTimestamp)
         try {
             const signatureElements = `${clientID}|${xTimestamp}`;
             const kjurSignature = new KJUR.crypto.Signature({"alg": "SHA256withRSA"});
             kjurSignature.init(privateKey);
             kjurSignature.updateString(signatureElements);
             const signatureResult = this.hexToBase64(kjurSignature.sign());
+            console.log("signature kjur: "+signatureResult)
             return signatureResult; 
         } catch(error) {
             throw error;
         }
     },
+    asymmetricSignature(privateKey,clientID,xTimestamp) {
+        let stringToSign = `${clientID}|${xTimestamp}`
+        const sign = crypto.createSign('RSA-SHA256');
+        sign.update(stringToSign);
+        sign.end();
+        const signature = sign.sign(privateKey);
+        console.log("AsymmetricXSignature: " + signature.toString('base64'));
+        console.log("raw stringToSign: " + stringToSign);
+    
+        return signature.toString('base64');
+    },
     compareSignatures(requestSignature,newSignature){
-        if(requestSignature === newSignature){
+        console.log("compare signature")
+        console.log("req signature: "+requestSignature)
+        console.log("new signature: "+newSignature)
+        if(requestSignature == newSignature){
             return true
         }else{
             return false
@@ -77,7 +98,6 @@ module.exports = {
         let body = {
             grantType : createTokenB2BRequestDTO.grantType
         }
-        console.log(header)
         return await new Promise((resolve, reject) => {
             axios({
                 method: 'post',
@@ -129,16 +149,37 @@ module.exports = {
     },
     minifyJSON(jsonString) {
         // This function removes all unnecessary whitespace from JSON string.
-        return jsonString.replace(/\s+/g, '');
+        const minifiedJson = jsonminify(JSON.stringify(jsonString));
+    
+        // Calculate the SHA-256 hash
+        const hash = crypto.createHash('sha256').update(minifiedJson).digest('hex');
+        
+        return hash;
     },
-    generateSymmetricSignature(httpMethod, endPointUrl, tokenB2B, updateVaRequestDto, timestamp, clientSecret) {
-        const minifiedJson = this.minifyJSON(JSON.stringify(updateVaRequestDto));
-        const hash = CryptoJS.SHA256(minifiedJson).toString(CryptoJS.enc.Hex);
-        const lowercaseHexHash = hash.toLowerCase();
-        const strToSign = `${httpMethod}:${endPointUrl}:${tokenB2B}:${lowercaseHexHash}:${timestamp}`;
-        const hmac = crypto.createHmac('sha512', clientSecret);
-        hmac.update(strToSign);
-        const signature = hmac.digest('base64');
-        return signature;
+    createSignature(rawData, secretKey){
+        let signatureUtf8 = CryptoJS.enc.Utf8.parse(rawData);
+        var secretUtf8 = CryptoJS.enc.Utf8.parse(secretKey);
+        console.log("secretKey: " + secretKey);
+        var signatureBytes = CryptoJS.HmacSHA512(signatureUtf8,secretUtf8);
+        var requestSignatureBase64String = CryptoJS.enc.Base64.stringify(signatureBytes);
+        return requestSignatureBase64String;
+    },
+    generateSymmetricSignature(symetricSignatureComponentDTO) {
+        const body = symetricSignatureComponentDTO.requestBody;
+        var minifyJsonObject = JSON.stringify(body, null, 0)
+        console.log('minifyJsonObject: ' + minifyJsonObject);
+        const bodySha256 = CryptoJS.enc.Base64.stringify(CryptoJS.SHA256(minifyJsonObject)).toLowerCase();
+        console.log('bodySha256: ' + bodySha256);
+        const data = `${symetricSignatureComponentDTO.httpMethod}:${symetricSignatureComponentDTO.endpointUrl}:${symetricSignatureComponentDTO.accessToken}:${bodySha256}:${symetricSignatureComponentDTO.timestamp}`;
+        console.log('stringtosign: ' + data);
+        
+        // const minifiedJson = this.minifyJSON(symetricSignatureComponentDTO.requestBody);
+        // const lowercaseHexHash = minifiedJson;
+        // const stringToSign = `${symetricSignatureComponentDTO.httpMethod}:${symetricSignatureComponentDTO.endpointUrl}:${symetricSignatureComponentDTO.accessToken}:${lowercaseHexHash}:${symetricSignatureComponentDTO.timestamp}`;
+        // var signature = this.createSignature(stringToSign,symetricSignatureComponentDTO.clientSecret);
+        // return signature;
+        var signatureHash = this.createSignature(data,symetricSignatureComponentDTO.clientSecret);
+        console.log("Signature: " + signatureHash);
+        return signatureHash
     }
 };

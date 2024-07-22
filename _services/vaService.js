@@ -137,7 +137,7 @@ module.exports = {
             "X-EXTERNAL-ID": requestHeaderDto.xExternalId,
             "CHANNEL-ID":requestHeaderDto.channelId
         }
-        // console.log(header)
+        console.log(header)
         return await new Promise((resolve, reject) => {
             axios({
                 method: 'post',

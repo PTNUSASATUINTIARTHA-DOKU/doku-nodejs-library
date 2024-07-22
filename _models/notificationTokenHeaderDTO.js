@@ -6,8 +6,8 @@ class NotificationTokenHeaderDto {
 
     toObject() {
         return {
-            XClientKey: this.XClientKey,
-            XTimeStamp: this.XTimeStamp
+            'x-client-key': this.XClientKey,
+            'x-timestamp': this.XTimeStamp
         };
     }
 }

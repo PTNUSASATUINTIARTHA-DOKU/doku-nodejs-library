@@ -1,5 +1,5 @@
 const NotificationTokenHeaderDto = require('./notificationTokenHeaderDTO')
-const NotificationTokenBodyDto = require('./notificationTokenHeaderDTO');
+const NotificationTokenBodyDto = require('./notificationTokenBodytDTO');
 
 class NotificationTokenDto {
     constructor(header, body) {

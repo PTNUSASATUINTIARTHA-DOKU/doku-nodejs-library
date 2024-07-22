@@ -29,6 +29,7 @@ class Snap{
     async getTokenB2B() {
         let tokenController = new TokenController();
         const tokenB2BResponseDto = await tokenController.getTokenB2B(this.privateKey, this.clientId, this.isProduction);
+        console.log("token : "+tokenB2BResponseDto.accessToken)
         this.setTokenB2B(tokenB2BResponseDto);
         return tokenB2BResponseDto;
     }
@@ -64,9 +65,10 @@ class Snap{
         let a = await vaController.createVa(createVARequestDto, this.privateKey, this.clientId, this.tokenB2B,this.isProduction);
         return a
     }
-    validateSignature(requestSignature,requestTimestamp){
+    async validateSignature(request){
         let tokenController = new TokenController();
-        return tokenController.validateSignature(requestSignature,requestTimestamp,this.privateKey,this.clientId)
+        return tokenController.validateSignature(this.privateKey, this.clientId, request)
+        // return tokenController.validateSignatureSymmetric(request, this.tokenB2B,this.secretKey,endPointUrl)
     }
     generateTokenB2B(isSignatureValid){
         let tokenController = new TokenController();
@@ -76,8 +78,8 @@ class Snap{
             return tokenController.generateInvalidSignatureResponse()
         }
     }
-    validateSignatureAndGenerateToken(requestSignature,requestTimestamp){
-        const isSignatureValid = this.validateSignature(requestSignature, requestTimestamp)
+    async validateSignatureAndGenerateToken(request){
+        const isSignatureValid = await this.validateSignature(request)
         return this.generateTokenB2B(isSignatureValid)
     }
     validateTokenB2B(requestTokenB2B){
