@@ -1,5 +1,5 @@
 const doku = require('../index');
-const CreateVARequestDto = require('doku-nodejs-library/_models/createVaRequestDto');
+const CreateVARequestDto = require('../_models/createVaRequestDto');
 const AdditionalInfo = require('../_models/additionalInfo');
 const TotalAmount = require('doku-nodejs-library/_models/totalAmount');
 const VirtualAccountConfig = require('doku-nodejs-library/_models/virtualAccountConfig');
@@ -112,13 +112,10 @@ let snap = new doku.Snap({
 async function createVa(){
     
     let createVaRequestDto = new CreateVARequestDto()
-    // dgpc
-    createVaRequestDto.partnerServiceId = "  123626"; 
 
-    // mgpc
-    // createVaRequestDto.partnerServiceId = "    1899";
-    // createVaRequestDto.customerNo ="142343";
-    // createVaRequestDto.virtualAccountNo = createVaRequestDto.partnerServiceId+createVaRequestDto.customerNo;
+    createVaRequestDto.partnerServiceId = "  123626";
+    createVaRequestDto.customerNo =`12123`;
+    createVaRequestDto.virtualAccountNo = createVaRequestDto.partnerServiceId+createVaRequestDto.customerNo;
     
     
     createVaRequestDto.virtualAccountName = "T_"+Date.now();
@@ -127,20 +124,19 @@ async function createVa(){
     createVaRequestDto.trxId = "INV_BRI_"+Date.now();
 
     let totalAmount = new TotalAmount();
-    totalAmount.value = "12500.00";
+    totalAmount.value = "10000.00";
     totalAmount.currency = "IDR";
 
     createVaRequestDto.totalAmount = totalAmount;
 
     let virtualAccountConfig = new VirtualAccountConfig();
     virtualAccountConfig.reusableStatus = false;
-
     let additionalInfo = new AdditionalInfo("VIRTUAL_ACCOUNT_BRI", virtualAccountConfig);
     additionalInfo.channel = "VIRTUAL_ACCOUNT_BRI";
     additionalInfo.virtualAccountConfig = virtualAccountConfig;
     createVaRequestDto.additionalInfo = additionalInfo;
-    createVaRequestDto.virtualAccountTrxType = "1";
-    createVaRequestDto.expiredDate = "2024-07-24T09:54:04+07:00";
+    createVaRequestDto.virtualAccountTrxType ='C';
+    createVaRequestDto.expiredDate = "2024-08-24T09:54:04+07:00";
     console.log(createVaRequestDto)
     await snap.createVa(createVaRequestDto).then(va=>{
         console.log(va)
@@ -176,29 +172,29 @@ async function createVaV1(){
 
 async function updateVa(){
     let updateVaRequestDto = new UpdateVaDto()
-    updateVaRequestDto.partnerServiceId = "    1899"; 
-    updateVaRequestDto.customerNo = "000000000375";
+    updateVaRequestDto.partnerServiceId = "  123626"; 
+    updateVaRequestDto.customerNo = "0000000597";
     updateVaRequestDto.virtualAccountNo = updateVaRequestDto.partnerServiceId+updateVaRequestDto.customerNo;
     
     
-    updateVaRequestDto.virtualAccountName = "T_1718867012059";
-    updateVaRequestDto.virtualAccountEmail = "test.bnc.1718867012059@test.com";
-    updateVaRequestDto.trxId = "INV_CIMB_1718867012059"
+    updateVaRequestDto.virtualAccountName = "test name";
+    updateVaRequestDto.virtualAccountEmail = "test.bnc.1722486935641@test.com";
+    updateVaRequestDto.trxId = "INV_BRI_1722486935641"
 
     let totalAmount = new TotalAmount();
-    totalAmount.value = "12500.00";
+    totalAmount.value = "12000.00";
     totalAmount.currency = "IDR";
 
     updateVaRequestDto.totalAmount = totalAmount;
     let virtualAccountConfig = new UpdateVaVirtualAccountConfigDto();
     virtualAccountConfig.status = "INACTIVE";
 
-    let additionalInfo = new UpdateVaAdditionalInfoDto("VIRTUAL_ACCOUNT_BANK_CIMB", virtualAccountConfig);
-    additionalInfo.channel = "VIRTUAL_ACCOUNT_BANK_CIMB";
+    let additionalInfo = new UpdateVaAdditionalInfoDto("VIRTUAL_ACCOUNT_BRI", virtualAccountConfig);
+    additionalInfo.channel = "VIRTUAL_ACCOUNT_BRI";
     additionalInfo.virtualAccountConfig = virtualAccountConfig;
     updateVaRequestDto.additionalInfo = additionalInfo;
-    updateVaRequestDto.virtualAccountTrxType = "1";
-    updateVaRequestDto.expiredDate = "2024-07-24T09:54:04+07:00";
+    updateVaRequestDto.virtualAccountTrxType = "C";
+    updateVaRequestDto.expiredDate = "2024-08-24T09:54:04+07:00";
     console.log(updateVaRequestDto)
     await snap.updateVa(updateVaRequestDto).then(va=>{
         //you can get response from update va here
@@ -217,10 +213,10 @@ async function getToken(){
 async function deletePaymentCode(){
     let deleteVaRequestDto = new DeleteVaRequestDto()
     deleteVaRequestDto.partnerServiceId =  "  123626"; 
-    deleteVaRequestDto.customerNo =  "0000000514";
+    deleteVaRequestDto.customerNo =  "0000000597";
     deleteVaRequestDto.virtualAccountNo = deleteVaRequestDto.partnerServiceId+deleteVaRequestDto.customerNo
    
-    deleteVaRequestDto.trxId = "INV_BRI_1721276900664"
+    deleteVaRequestDto.trxId = "INV_BRI_1722486935641"
     let additionalInfo = new DeleteVaRequestAdditionalInfo("VIRTUAL_ACCOUNT_BRI");
     deleteVaRequestDto.additionalInfo = additionalInfo;
     await snap.deletePaymentCode(deleteVaRequestDto).then(response=>{
@@ -237,7 +233,6 @@ async function checkStatusVa(){
     checkVaRequestDto.virtualAccountNo = checkVaRequestDto.partnerServiceId+checkVaRequestDto.customerNo
     console.log(checkVaRequestDto)
     await snap.checkStatusVa(checkVaRequestDto).then(response=>{
-        // console.log("ini sample")
         console.log(response)
     }).catch((err)=>{
         console.log(err)
@@ -247,10 +242,38 @@ function inquiry(){
     snap.validateTokenB2B(req.headers['Authorization']);
     snap.generateRequestHeader()
 }
+function v1SNAPConverter(){
+    const xmlString = `
+<INQUIRY_RESPONSE>
+    <PAYMENTCODE>8975011200005642</PAYMENTCODE>
+    <AMOUNT>100000.00</AMOUNT>
+    <PURCHASEAMOUNT>100000.00</PURCHASEAMOUNT>
+    <MINAMOUNT>10000.00</MINAMOUNT>
+    <MAXAMOUNT>550000.00</MAXAMOUNT>
+    <TRANSIDMERCHANT>1396430482839</TRANSIDMERCHANT>
+    <WORDS>b5a22f37ad0693ebac1bf03a89a8faeae9e7f390</WORDS>
+    <REQUESTDATETIME>20140402162122</REQUESTDATETIME>
+    <CURRENCY>360</CURRENCY>
+    <PURCHASECURRENCY>360</PURCHASECURRENCY>
+    <SESSIONID>dxgcmvcbywhu3t5mwye7ngqhpf8i6edu</SESSIONID>
+    <NAME>Nama Lengkap</NAME>
+    <EMAIL>nama@xyx.com</EMAIL>
+    <BASKET>ITEM 1,10000.00,2,20000.00;ITEM 2,20000.00,4,80000.00</BASKET>
+    <ADDITIONALDATA>BORNEO TOUR AND TRAVEL</ADDITIONALDATA>
+    <RESPONSECODE>0000</RESPONSECODE>
+</INQUIRY_RESPONSE>`;
+snap.v1SNAPConverter(xmlString).then((res)=>{
+    console.log(res)
+    let data = snap.SNAV1Converter(res);
+    console.log(data)
+}).catch(err=>console.log(err))
+   
+}
 
 // createVaV1();
 // getToken()
 createVa()
+// v1SNAPConverter()
 // deletePaymentCode()
 // checkStatusVa()
 // updateVa()

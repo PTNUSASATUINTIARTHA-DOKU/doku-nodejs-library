@@ -1,7 +1,10 @@
+const PaymentNotificationResponseBodyDto = require("./paymentNotificationRequestBodyDTO");
+const PaymentNotificationResponseHeaderDto = require("./paymentNotificationResponseHeaderDTO");
+
 class PaymentNotificationResponseDTO {
     constructor(header, body) {
-        this.header = header;
-        this.body = body;
+        this.header = new PaymentNotificationResponseHeaderDto(header);
+        this.body = new PaymentNotificationResponseBodyDto(body);
     }
 
     toObject() {

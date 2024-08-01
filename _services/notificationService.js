@@ -8,7 +8,9 @@ module.exports = {
             customerNo :PaymentNotificationRequestBodyDto.customerNo,
             virtualAccountNo : PaymentNotificationRequestBodyDto.virtualAccoutNo,
             virtualAccountName :PaymentNotificationRequestBodyDto.virtualAccountName,
-            paymentRequestId : PaymentNotificationRequestBodyDto.paymentRequestId
+            paymentRequestId : PaymentNotificationRequestBodyDto.paymentRequestId,
+            virtualAccountTrxType:PaymentNotificationRequestBodyDto.virtualAccountTrxType,
+            additionalInfo:PaymentNotificationRequestBodyDto.additionalInfo
         }
     },
     generateInvalidTokenResponse(PaymentNotificationRequestBodyDto){

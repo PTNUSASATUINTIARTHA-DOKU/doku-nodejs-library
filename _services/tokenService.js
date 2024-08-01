@@ -17,12 +17,6 @@ module.exports = {
         const buffer = Buffer.from(hexString, 'hex');
         return buffer.toString('base64');
     },
-    sha256Base64(message) {
-        return crypto.createHash('sha256').update(message).digest('base64');
-    },
-    hmacSHA256(message, secretKey) {
-        return crypto.createHmac('sha256', secretKey).update(message).digest('hex');
-    },
     generateToken(expiredIn, issuer, privateKey, clientId) {
        const expiration = Math.floor(Date.now() / 1000) + expiredIn;
        const payload = {
@@ -33,16 +27,17 @@ module.exports = {
         const token = jwt.sign(payload, privateKey, { algorithm: 'RS256' });
         return token;
     },
-    generateSignature(privateKey,clientID,xTimestamp) {
+    generateSignature(privateKey, clientID, xTimestamp) {
         try {
             const signatureElements = `${clientID}|${xTimestamp}`;
-            const kjurSignature = new KJUR.crypto.Signature({"alg": "SHA256withRSA"});
-            kjurSignature.init(privateKey);
-            kjurSignature.updateString(signatureElements);
-            const signatureResult = this.hexToBase64(kjurSignature.sign());
-            console.log("signature kjur: "+signatureResult)
-            return signatureResult; 
-        } catch(error) {
+            console.log('Signature Elements:', signatureElements);
+            const sign = crypto.createSign('RSA-SHA256');
+            sign.update(signatureElements);
+            sign.end();
+            const signatureResult = sign.sign(privateKey, 'base64');
+            console.log("Generated Signature: " + signatureResult);
+            return signatureResult;
+        } catch (error) {
             throw error;
         }
     },
@@ -57,14 +52,32 @@ module.exports = {
     
         return signature.toString('base64');
     },
-    compareSignatures(requestSignature,newSignature){
+    compareSignatures(requestSignature,newSignature,publicKey,clientID,xTimestamp){
         console.log("compare signature")
         console.log("req signature: "+requestSignature)
-        console.log("new signature: "+newSignature)
-        if(requestSignature == newSignature){
-            return true
-        }else{
-            return false
+        console.log("new signature: "+newSignature);
+        const data = Buffer.from(`${clientID}|${xTimestamp}`);
+        try {
+            // Buat verifikasi
+            const isVerified = crypto.verify(
+                'RSA-SHA256',
+                Buffer.from(data),
+                {
+                    key: publicKey,
+                    padding: crypto.constants.RSA_PKCS1_PADDING,
+                },
+                Buffer.from(newSignature, 'base64')
+            );
+
+            if (isVerified) {
+                console.log('Tanda tangan valid');
+            } else {
+                console.log('Tanda tangan tidak valid');
+            }
+            console.log(isVerified)
+            return isVerified
+        } catch (error) {
+            console.error('Error during verification:', error);
         }
     },
     generateTimestamp() {
@@ -88,13 +101,11 @@ module.exports = {
     },
     async createTokenB2B(createTokenB2BRequestDTO,isProduction) {
         const base_url_api = config.getBaseUrl(isProduction) + config.ACCESS_TOKEN;
-
         let header = {
             "X-CLIENT-KEY": createTokenB2BRequestDTO.clientId,
             "X-TIMESTAMP": createTokenB2BRequestDTO.timestamp,
             "X-SIGNATURE": createTokenB2BRequestDTO.signature
         };
-
         let body = {
             grantType : createTokenB2BRequestDTO.grantType
         }
@@ -125,7 +136,6 @@ module.exports = {
         }else{
             return false
         }
-        
     },
     generateNotificationTokenDto(token,timestamp,clientId,expiresIn){
         let header = new NotificationTokenHeaderDto(clientId,timestamp)

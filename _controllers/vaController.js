@@ -1,6 +1,7 @@
 "use strict"
 
 const Config = require("../_commons/config");
+const notificationService = require("../_services/notificationService");
 const tokenService = require("../_services/tokenService");
 const vaService = require("../_services/vaService");
 const VaService = require("../_services/vaService");
@@ -53,7 +54,14 @@ class VaController{
         let header = vaService.createVaRequesHeaderDto(checkVARequestDTO.additionalInfo?.channel, clientId, tokenB2B, timestamp, externalId, signature)
         return vaService.doCheckStatusVa(header, checkVARequestDTO,isProduction)
     }
-    
+    v1ToSnap(xmlString){
+        let vaData = vaService.v1ToSnap(xmlString)
+        return vaData
+    }
+    snapToV1(json){
+        let vaData = vaService.jsonToFormData(json)
+        return vaData
+    }
 }
   
 module.exports = VaController;

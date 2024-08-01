@@ -1,11 +1,15 @@
 class VirtualAccountConfig {
-    constructor(reusableStatus) {
+    constructor(reusableStatus,maxAmount,minAmount) {
         this.reusableStatus = reusableStatus;
+        this.maxAmount = maxAmount;
+        this.minAmount = minAmount;
     }
 
     toObject() {
         return {
-            reusableStatus: this.reusableStatus
+            reusableStatus: this.reusableStatus,
+            maxAmount:this.maxAmount,
+            minAmount:this.minAmount
         };
     }
 }

@@ -1,4 +1,4 @@
-class PaymentNotificationResponseBodyDto {
+class PaymentNotificationResponseBodyDTO {
     constructor(responseCode, responseMessage, virtualAccountData) {
         this.responseCode = responseCode;
         this.responseMessage = responseMessage;
@@ -9,8 +9,8 @@ class PaymentNotificationResponseBodyDto {
         return {
             responseCode: this.responseCode,
             responseMessage: this.responseMessage,
-            virtualAccountData: this.virtualAccountData.toObject()
+            virtualAccountData: this.virtualAccountData
         };
     }
 }
-module.exports = PaymentNotificationResponseBodyDto;
+module.exports = PaymentNotificationResponseBodyDTO;

@@ -16,12 +16,12 @@ class TokenController{
             }
         }
     }
-    validateSignature(privateKey, clientId, request){
+    validateSignature(privateKey, clientId, request,publicKey){
         let timestamp = request.get('x-timestamp');
         const signature = TokenService.generateSignature(privateKey, clientId, timestamp);
-        // const signature = TokenService.asymmetricSignature(privateKey, clientId, timestamp)
         let requestSignature = request.get('x-signature');
-        return TokenService.compareSignatures(requestSignature,signature)
+        return TokenService.compareSignatures(requestSignature,signature,publicKey,clientId,timestamp)
+       
     }
     validateSignatureSymmetric(request, tokenB2B,secretKey,endPointUrl){
         let timestamp = request.get('x-timestamp');
@@ -58,7 +58,11 @@ class TokenController{
         return TokenService.generateNotificationTokenDto(token,xTimestamp,clientId,expiredIn)
     }
     validateTokenB2B(requestTokenB2B, publicKey){
-        return TokenService.validateTokenB2B(requestTokenB2B, publicKey)
+        let tokenWithoutBearer = requestTokenB2B;
+        if (tokenWithoutBearer.startsWith('Bearer ')) {
+            tokenWithoutBearer = tokenWithoutBearer.replace("Bearer ",""); // Menghapus 'Bearer ' (7 karakter)
+        }
+        return TokenService.validateTokenB2B(tokenWithoutBearer, publicKey)
     }
     doGenerateRequestHeader(privateKey, clientId, tokenB2B){
         const externalId = vaService.generateExternalId();

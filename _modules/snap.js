@@ -27,11 +27,17 @@ class Snap{
    
     
     async getTokenB2B() {
-        let tokenController = new TokenController();
-        const tokenB2BResponseDto = await tokenController.getTokenB2B(this.privateKey, this.clientId, this.isProduction);
-        console.log("token : "+tokenB2BResponseDto.accessToken)
-        this.setTokenB2B(tokenB2BResponseDto);
-        return tokenB2BResponseDto;
+        try {
+            let tokenController = new TokenController();
+            const tokenB2BResponseDto = await tokenController.getTokenB2B(this.privateKey, this.clientId, this.isProduction);
+            if (!tokenB2BResponseDto.accessToken || !tokenB2BResponseDto.expiresIn) {
+                throw new Error('Invalid token response');
+            }
+            this.setTokenB2B(tokenB2BResponseDto);
+            return tokenB2BResponseDto;
+        } catch (error) {
+            throw new Error(`Failed to get token: ${error.message}`);
+        }
     }
     
     setTokenB2B(tokenB2BResponseDto){
@@ -65,10 +71,9 @@ class Snap{
         let a = await vaController.createVa(createVARequestDto, this.privateKey, this.clientId, this.tokenB2B,this.isProduction);
         return a
     }
-    async validateSignature(request){
+ validateSignature(request,publicKey){
         let tokenController = new TokenController();
-        return tokenController.validateSignature(this.privateKey, this.clientId, request)
-        // return tokenController.validateSignatureSymmetric(request, this.tokenB2B,this.secretKey,endPointUrl)
+        return tokenController.validateSignature(this.privateKey, this.clientId, request,publicKey);
     }
     generateTokenB2B(isSignatureValid){
         let tokenController = new TokenController();
@@ -78,8 +83,8 @@ class Snap{
             return tokenController.generateInvalidSignatureResponse()
         }
     }
-    async validateSignatureAndGenerateToken(request){
-        const isSignatureValid = await this.validateSignature(request)
+    validateSignatureAndGenerateToken(request){
+        const isSignatureValid = this.validateSignature(request,this.publicKey)
         return this.generateTokenB2B(isSignatureValid)
     }
     validateTokenB2B(requestTokenB2B){
@@ -141,6 +146,14 @@ class Snap{
         let vaController = new VaController();
         let checkStatus = await vaController.doCheckStatusVa(checkVARequestDTO,this.privateKey,  this.clientId, this.tokenB2B,this.isProduction);
         return checkStatus;
+    }
+    v1SNAPConverter(xmlString){
+        let vaController = new VaController();
+        return vaController.v1ToSnap(xmlString)
+    }
+    SNAV1Converter(json){
+        let vaController = new VaController();
+        return vaController.snapToV1(json)
     }
 }
 module.exports = Snap;
