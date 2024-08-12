@@ -67,7 +67,6 @@ module.exports = {
                 resolve(response);
             })
             .catch((err) => {
-                console.log(err)
                 reject(err);
             });
         });
@@ -93,7 +92,6 @@ module.exports = {
                 data:updateVaRequestDto.toObject()
             })
             .then((res) => {
-                console.log(res)
                 let response = new UpdateVaResponseDto(res.data);
                 resolve(response);
             })
@@ -214,31 +212,7 @@ module.exports = {
                 if (err) {
                     reject(err);
                 } else {
-                    let response =  new PaymentNotificationResponseBodyDTO();
-                    let result = res.INQUIRY_RESPONSE;
-                    let responseCode = this.mapResponseCodeV1Snap(result.RESPONSECODE)
-                    response.responseCode = responseCode.code;
-                    response.responseMessage = responseCode.message;
-                    let vaData = {
-                        partnerServiceId: null,
-                        customerNo: result.PAYMENTCODE || null,
-                        virtualAccountNo: result.PAYMENTCODE || null,
-                        virtualAccountName: result.NAME || null,
-                        virtualAccountEmail: result.EMAIL || null,
-                        totalAmount:{
-                            value:result.AMOUNT,
-                            currency:this.convertToISO4217(result.CURRENCY)
-                        },
-                        additionalInfo: {
-                            trxId: result.TRANSIDMERCHANT,
-                            virtualAccountConfig: {
-                                minAmount: result.MINAMOUNT || 0,
-                                maxAmount: result.MAXAMOUNT || 0
-                            }
-                        }
-                    };
-                    response.virtualAccountData = vaData;
-                    resolve(response);
+                    resolve(res.INQUIRY_RESPONSE);
                 }
             });
         });
@@ -291,7 +265,6 @@ module.exports = {
         return iso4217Map[currencyCode] || 'Unknown';
     },
     jsonToFormData(data) {
-        let json = this.mappingJsonToXmlFormat(data)
         const form = new FormData();
     
         function appendFormData(data, parentKey = '') {
@@ -316,7 +289,7 @@ module.exports = {
             }
         }
     
-        appendFormData(json);
+        appendFormData(data);
         return form;
     }
     

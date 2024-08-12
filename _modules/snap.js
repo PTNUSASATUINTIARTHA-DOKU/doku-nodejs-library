@@ -151,7 +151,7 @@ class Snap{
         let vaController = new VaController();
         return vaController.v1ToSnap(xmlString)
     }
-    SNAV1Converter(json){
+    SNAPV1Converter(json){
         let vaController = new VaController();
         return vaController.snapToV1(json)
     }

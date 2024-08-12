@@ -1,10 +1,11 @@
-const InquiryRequestVirtualAccountDataDTO = require("./inquiryRequestVirtualAccountDataDto");
+const InquiryResponseVirtualAccountDataDTO = require("./InquiryResponseVirtualAccountDataDTO");
+
 
 class InquiryResponseBodyDTO {
-    constructor(data) {
-        this.responseCode = data.responseCode;
-        this.responseMessage = data.responseMessage;
-        this.virtualAccountData = new InquiryRequestVirtualAccountDataDTO(data.virtualAccountData) 
+    constructor(responseCode,responseMessage,virtualAccountData) {
+        this.responseCode = responseCode;
+        this.responseMessage = responseMessage;
+        this.virtualAccountData = virtualAccountData;
     }
     
     toObject() {

@@ -9,7 +9,6 @@ module.exports = {
             virtualAccountNo : PaymentNotificationRequestBodyDto.virtualAccoutNo,
             virtualAccountName :PaymentNotificationRequestBodyDto.virtualAccountName,
             paymentRequestId : PaymentNotificationRequestBodyDto.paymentRequestId,
-            virtualAccountTrxType:PaymentNotificationRequestBodyDto.virtualAccountTrxType,
             additionalInfo:PaymentNotificationRequestBodyDto.additionalInfo
         }
     },

@@ -1,5 +1,5 @@
 class InquiryReasonDto{
-    constructor(data){
+    constructor(data = {}){
         this.english = data.english;
         this.indonesia = data.indonesia;
     }

@@ -89,7 +89,90 @@ await snap.createVa(createVaRequestDto).then(createVaResponseDto => {
 ##### DIPC
 ###### #coming-soon inquiryResponse Function
 If you use the DIPC feature, you can generate your own paycode and allow your customers to pay without direct communication with DOKU. After customers initiate the payment via the acquirer's channel, DOKU sends an inquiry request to you for validation. This function is applicable for DIPC.
-
+```js
+app.post("/v1.1/transfer-va/inquiry",(req,res)=>{ //path must be /v1.1/transfer-va/inquiry after your domain
+    let isvalid = snap.validateTokenB2B(req.headers['authorization']);
+    if(isvalid){
+      if(req.body){
+        // validate virtualAccountNo from merchant DB
+        let query = `select * from direct_inquiry_va where va_number = '${req.body.virtualAccountNo}'`;
+        db.query(query ,(err, result) => {
+          if(err){
+            throw err
+          }       
+          if(result.rows.length>0){
+            let updateQuery = `UPDATE direct_inquiry_va set status_va = 'inquiry', settlement_time = '${req.body.trxDateInit}' where va_number = '${req.body.virtualAccountNo}';`
+            db.query(updateQuery ,(err, result) => {
+              if(err){
+                throw err
+              }
+              if(result){
+                //use InquiryResponseBodyDTO to easily mapping response
+                let bodyData = new InquiryResponseBodyDTO()
+                bodyData.responseCode = "2002400";
+                bodyData.responseMessage = "Successful"
+                let vaData = new InquiryResponseVirtualAccountDataDTO()
+                vaData.partnerServiceId = req.body.partnerServiceId;
+                vaData.customerNo = req.body.customerNo;
+                vaData.virtualAccountNo = req.body.virtualAccountNo;
+                vaData.virtualAccountName = "Nama "+Date.now();
+                vaData.virtualAccountEmail ="email."+Date.now()+"@gmail.com";
+                vaData.virtualAccountPhone = `${Date.now()}`;
+                let totalAmount = new TotalAmount()
+                totalAmount.currency = "IDR";
+                totalAmount.value = "25000.00"
+                vaData.totalAmount = totalAmount;
+                vaData.virtualAccountTrxType = "C"
+                let additionalInfo = new InquiryResponseAdditionalInfoDTO()
+                additionalInfo.channel = req.body.additionalInfo.channel;
+                additionalInfo.trxId = "INV_MERCHANT_"+Date.now();
+                let virtualAccountConfig = new VirtualAccountConfig()
+                virtualAccountConfig.reusableStatus = true;
+                virtualAccountConfig.maxAmount = "100000.00";
+                virtualAccountConfig.minAmount = "10000.00"
+                additionalInfo.virtualAccountConfig = virtualAccountConfig;
+                vaData.additionalInfo = additionalInfo;
+                vaData.inquiryStatus ="00";
+                let inquiryReason = new InquiryReasonDto()
+                inquiryReason.english = "Success";
+                inquiryReason.indonesia = "Sukses";
+                vaData.inquiryReason = inquiryReason;
+                vaData.inquiryRequestId = req.body.inquiryRequestId;
+                vaData.freeText = [
+                        {
+                          "english": "Free text",
+                          "indonesia": "Tulisan Bebas"
+                        }
+                ]
+                bodyData.virtualAccountData = vaData;
+               res.status(200).send(bodyData.toObject()); //change dto to object with toObject()
+              }
+         
+            })
+          }else{
+            res.status(401).send({
+              "responseCode": "4012400",
+              "responseMessage": "Virtual Account Not Found",
+            });
+          }
+        })
+      }else{
+        let body ={
+          "responseCode": "4010000",
+          "responseMessage": "Unauthorized",
+        }
+         res.status(401).send(body);
+      }
+       
+    }else{
+      let body ={
+        "responseCode": "4010000",
+        "responseMessage": "Unauthorized",
+      }
+       res.status(401).send(body);
+    }
+})
+```
 > [!Important!]
 >Before sending the inquiry, DOKU sends a token request. Use the `generateToken` function found in the Handling Payment Notification section.
 
@@ -97,18 +180,35 @@ If you use the DIPC feature, you can generate your own paycode and allow your cu
 After your customers make a payment, you’ll receive a notification from DOKU to update the payment status on your end. DOKU first sends a token request (as with DIPC), then uses that token to send the payment notification.
 ##### validateSignatureAndGenerateToken function
 Generate the response to DOKU, including the required token, by calling this function.
-
+```js
+ let response = snap.validateSignatureAndGenerateToken(req,endPointUrl); 
+ // req is request from doku include header and body
+ // endPointUrl is your api path
+```
 ##### validateTokenAndGenerateNotificationReponse function
 Deserialize the raw notification data into a structured object using a Data Transfer Object (DTO). This allows you to update the order status, notify customers, or perform other necessary actions based on the notification details.
-
+```js
+let response = snap.validateTokenAndGenerateNotificationResponse(req.headers['authorization'],req.body);
+```
 ##### generateNotificationResponse function
 DOKU requires a response to the notification. Use this function to serialize the response data to match DOKU’s format.
-
+```js
+let response = snap.generateNotificationResponse(isTokenValid,req.body);
+//isTokenValid is boolean, true or false from validateToken function
+```
 ### #coming-soon 4. Additional Features
 Need to use our functions independently? No problem! Here’s how:
 #### - v1 to SNAP converter
 If you're one of our earliest users, you might still use our v1 APIs. In order to simplify your re-integration process to DOKU's SNAP API specification, DOKU provides you with a helper tools to directly convert v1 APIs to SNAP APIs specification
 ##### a. convertRequestV1
 Convert DOKU's inquiry and notification from SNAP format (JSON) to v1 format (XML). Feed the inquiry and notification directly to your app without manually mapping parameters or converting file formats.
+```js
+ let formData = snap.SNAPV1Converter(req.body)
+//isTokenValid is boolean, true or false from validateToken function
+```
 ##### b. convertResponseV1
 Convert your inquiry response to DOKU from v1 format (XML) to SNAP format (JSON). Our library handles response code mapping, allowing you to directly use the converted response and send it to DOKU.
+```js
+let xmlToJson = snap.v1SNAPConverter(xml)
+//xml string format
+```

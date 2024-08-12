@@ -45,8 +45,7 @@ class TokenController{
        const xTimestamp = TokenService.generateTimestamp(); 
         const signature = TokenService.generateSignature(privateKey, clientId, xTimestamp);
         const createTokenB2BRequestDTO = TokenService.createTokenB2BRequestDTO(signature, xTimestamp, clientId);
-        console.log(createTokenB2BRequestDTO)
-        return await TokenService.createTokenB2B(createTokenB2BRequestDTO,isProduction);
+       return await TokenService.createTokenB2B(createTokenB2BRequestDTO,isProduction);
     }
     generateInvalidSignatureResponse(){
         const xTimestamp = TokenService.generateTimestamp(); 
