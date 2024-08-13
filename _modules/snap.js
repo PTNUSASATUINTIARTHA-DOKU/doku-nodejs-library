@@ -147,13 +147,14 @@ class Snap{
         let checkStatus = await vaController.doCheckStatusVa(checkVARequestDTO,this.privateKey,  this.clientId, this.tokenB2B,this.isProduction);
         return checkStatus;
     }
-    v1SNAPConverter(xmlString){
+   
+    directInquiryRequestMapping(header,body){
         let vaController = new VaController();
-        return vaController.v1ToSnap(xmlString)
+        return vaController.directInquiryRequestMapping(header,body)
     }
-    SNAPV1Converter(json){
+    directInquiryResponseMapping(xmlString){
         let vaController = new VaController();
-        return vaController.snapToV1(json)
+        return vaController.directInquiryResponseMapping(xmlString)
     }
 }
 module.exports = Snap;

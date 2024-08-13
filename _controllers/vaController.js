@@ -54,12 +54,13 @@ class VaController{
         let header = vaService.createVaRequesHeaderDto(checkVARequestDTO.additionalInfo?.channel, clientId, tokenB2B, timestamp, externalId, signature)
         return vaService.doCheckStatusVa(header, checkVARequestDTO,isProduction)
     }
-    v1ToSnap(xmlString){
-        let vaData = vaService.v1ToSnap(xmlString)
+    
+    directInquiryRequestMapping(header,body){
+        let vaData = vaService.jsonToFormData(header,body)
         return vaData
     }
-    snapToV1(json){
-        let vaData = vaService.jsonToFormData(json)
+    directInquiryResponseMapping(xmlString){
+        let vaData = vaService.directInquiryResponseMapping(xmlString)
         return vaData
     }
 }

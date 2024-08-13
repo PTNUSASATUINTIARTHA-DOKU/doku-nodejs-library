@@ -248,56 +248,77 @@ function inquiry(){
     snap.validateTokenB2B(req.headers['Authorization']);
     snap.generateRequestHeader()
 }
-function v1SNAPConverter(){
+function directInquiryResponseMapping(){
     const xmlString = `
 <INQUIRY_RESPONSE>
-   <responseCode>2002400</responseCode>
-<responseMessage>Successful</responseMessage>
-<virtualAccountData>
-    <partnerServiceId>12362</partnerServiceId>
-    <customerNo>80001</customerNo>
-    <virtualAccountNo>1236280001</virtualAccountNo>
-    <virtualAccountName>Nama 1723450800660</virtualAccountName>
-    <virtualAccountEmail>email.1723450800660@gmail.com</virtualAccountEmail>
-    <virtualAccountPhone>1723450800660</virtualAccountPhone>
-    <totalAmount>
-        <value>25000.00</value>
-        <currency>IDR</currency>
-    </totalAmount>
-    <virtualAccountTrxType>C</virtualAccountTrxType>
-    <additionalInfo>
-        <channel>VIRTUAL_ACCOUNT_BRI</channel>
-        <trxId>INV_MERCHANT_1723450800660</trxId>
-        <virtualAccountConfig>
-            <reusableStatus>true</reusableStatus>
-            <maxAmount>100000.00</maxAmount>
-            <minAmount>10000.00</minAmount>
-        </virtualAccountConfig>
-    </additionalInfo>
-    <inquiryStatus>00</inquiryStatus>
-    <inquiryReason>
-        <english>Success</english>
-        <indonesia>Sukses</indonesia>
-    </inquiryReason>
-    <inquiryRequestId>DIPCVA003T240812152000462Ttrpj3uIV2n</inquiryRequestId>
-    <freeText>
-        <english>Free text</english>
-        <indonesia>Tulisan Bebas</indonesia>
-    </freeText>
-</virtualAccountData>
+    <PAYMENTCODE>8975011200005642</PAYMENTCODE>
+    <AMOUNT>100000.00</AMOUNT>
+    <PURCHASEAMOUNT>100000.00</PURCHASEAMOUNT>
+    <MINAMOUNT>10000.00</MINAMOUNT>
+    <MAXAMOUNT>550000.00</MAXAMOUNT>
+    <TRANSIDMERCHANT>1396430482839</TRANSIDMERCHANT>
+    <WORDS>b5a22f37ad0693ebac1bf03a89a8faeae9e7f390</WORDS>
+    <REQUESTDATETIME>20140402162122</REQUESTDATETIME>
+    <CURRENCY>360</CURRENCY>
+    <PURCHASECURRENCY>360</PURCHASECURRENCY>
+    <SESSIONID>dxgcmvcbywhu3t5mwye7ngqhpf8i6edu</SESSIONID>
+    <NAME>Nama Lengkap</NAME>
+    <EMAIL>nama@xyx.com</EMAIL>
+    <BASKET>ITEM 1,10000.00,2,20000.00;ITEM 2,20000.00,4,80000.00</BASKET>
+    <ADDITIONALDATA>BORNEO TOUR AND TRAVEL</ADDITIONALDATA>
+    <RESPONSECODE>0000</RESPONSECODE>
 </INQUIRY_RESPONSE>`;
-snap.v1SNAPConverter(xmlString).then((res)=>{
+snap.directInquiryResponseMapping(xmlString).then((res)=>{
     console.log(res)
-    let data = snap.SNAPV1Converter(res);
-    console.log(data)
+    // let data = snap.SNAV1Converter(res);
+    // console.log(data)
 }).catch(err=>console.log(err))
    
+}
+
+function directInquiryRequestMapping(){
+    let header =  {
+       'x-forwarded-host': 'doku-js.sandboxenv.com',
+       'x-forwarded-server': 'doku-js.sandboxenv.com',
+       'x-real-ip': '147.139.130.145',
+       'x-forwarded-for': '10.71.177.193, 147.139.130.145',
+       'x-forwarded-proto': 'http',
+       host: 'doku-js.sandboxenv.com',
+       connection: 'Upgrade',
+       'content-length': '272',
+       accept: 'application/json',
+       'content-type': 'application/json',
+       authorization: 'Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjM1MjEyMzksImlzc3VlciI6IlBUIE1QRSIsImNsaWVudElkIjoiQlJOLTAyMjEtMTY5MzIwOTU2NzM5MiIsImlhdCI6MTcyMzUyMDMzOX0.SQvZ-ImCX1srS0-M1zo33w-zBi4KuGVk6j1b392F_vDBEfIIWO_hRBnmRpgW9EoHbCiwjK6EiHhkclkoiERbZM8F_6R-VeEPO01CVaZ8BZb7N9Nq55m0D3S6POb3Z2rNkWNv0GUO4O3cpKsfUGnHB8MaRbdyzPNlDXIqvzE3AijdEAWsJdsrc0keQsdDodbjNg6_hyV2aptAxbRXmX5iA--DpqOmNtikP0ovP70Lg1XZVWifC2RrnI9Fv231pnSmvNJAhQISvu_L1CwEpg9s0RhCGNCwiHSeo_Zrq2NR0PNc3tWH9pBtdhmZTx1xWTf0AI8DpYRDKkfVGT8JCCBP8Q',
+       'x-partner-id': 'BRN-0221-1693209567392',
+       'x-external-id': 'DIPCVA003T240813103859314TvKmZ52mBnj',
+       'x-timestamp': '2024-08-13T10:38:59+07:00',
+       'channel-id': 'H2H',
+       'x-signature': 'Rc2PigQTKPe5tb4cbkhcleCWUzHCZmdDuCt1wqJ3Eyso9S9wOjfOO/RMElRHUTiv8zw6bN+5BgOpsJXPriiJoQ==',
+       'user-agent': 'Apache-HttpClient/4.5.14 (Java/17.0.10)',
+       'accept-encoding': 'gzip,deflate',
+       via: '1.1 proxy-http-7ccf4656d4-kzhzv (squid/6.9)',
+       'cache-control': 'max-age=259200'
+    }
+    let body =  {
+       partnerServiceId: '   12362',
+       customerNo: '80002',
+       virtualAccountNo: '   1236280002',
+       trxDateInit: '2024-08-13T10:38:59+07:00',
+       channelCode: '1',
+       language: 'ID',
+       inquiryRequestId: 'DIPCVA003T240813103859314TvKmZ52mBnj',
+       additionalInfo: { channel: 'VIRTUAL_ACCOUNT_BRI' }
+    }
+        
+   let formData =  snap.directInquiryRequestMapping(header,body);
+   console.log(formData)
 }
 
 // createVaV1();
 // getToken()
 // createVa()
-v1SNAPConverter()
+// directInquiryResponseMapping()
+directInquiryRequestMapping()
 // deletePaymentCode()
 // checkStatusVa()
 // updateVa()

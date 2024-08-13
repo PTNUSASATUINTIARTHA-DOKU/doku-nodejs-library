@@ -10,6 +10,7 @@ const DeleteVaResponseDto = require('../_models/deleteVaResponseDTO');
 const CheckStatusVaResponseDTO = require('../_models/checkStatusVaResponseDTO');
 const PaymentNotificationResponseBodyDTO = require('../_models/paymentNotificationResponseBodyDTO');
 const FormData = require('form-data');
+const V2_CHANNEL_TO_V1 = require('../_commons/v1ChannelEnum');
 
 module.exports = {
     generateExternalId() {
@@ -204,15 +205,39 @@ module.exports = {
                 return null; // or handle unknown codes as needed
         }
     },    
-    v1ToSnap(xmlString){
+    directInquiryResponseMapping(xmlString){
         const parser = new xml2js.Parser({ explicitArray: false });
-    
         return new Promise((resolve, reject) => {
             parser.parseString(xmlString, (err, res) => {
                 if (err) {
                     reject(err);
                 } else {
-                    resolve(res.INQUIRY_RESPONSE);
+                    let response =  new PaymentNotificationResponseBodyDTO();
+                    let result = res.INQUIRY_RESPONSE;
+                    let responseCode = this.mapResponseCodeV1Snap(result.RESPONSECODE)
+                    response.responseCode = responseCode.code;
+                    response.responseMessage = responseCode.message;
+                    let vaData = {
+                        partnerServiceId: null,
+                        customerNo: result.PAYMENTCODE || null,
+                        virtualAccountNo: result.PAYMENTCODE || null,
+                        virtualAccountName: result.NAME || null,
+                        virtualAccountEmail: result.EMAIL || null,
+                        virtualAccountTrxType:"C",
+                        totalAmount:{
+                            value:result.AMOUNT,
+                            currency:this.convertToISO4217(result.CURRENCY)
+                        },
+                        additionalInfo: {
+                            trxId: result.TRANSIDMERCHANT,
+                            virtualAccountConfig: {
+                                minAmount: result.MINAMOUNT || 0,
+                                maxAmount: result.MAXAMOUNT || 0
+                            }
+                        }
+                    };
+                    response.virtualAccountData = vaData;
+                    resolve(response);
                 }
             });
         });
@@ -264,7 +289,19 @@ module.exports = {
     
         return iso4217Map[currencyCode] || 'Unknown';
     },
-    jsonToFormData(data) {
+    mappingRequestSnapToV1(header,body){
+      return {
+            WORDS:"",
+            MALLID:header['x-partner-id'],
+            CHAINMERCHANT:"",
+            STATUSTYPE:"",
+            PAYMENTCHANNEL:V2_CHANNEL_TO_V1[body.additionalInfo.channel]||null,
+            PAYMENTCODE:body.virtualAccountNo,
+            OCOID:body.inquiryRequestId
+        }     
+    },
+    jsonToFormData(header,body) {
+        let json = this.mappingRequestSnapToV1(header,body)
         const form = new FormData();
     
         function appendFormData(data, parentKey = '') {
@@ -289,7 +326,7 @@ module.exports = {
             }
         }
     
-        appendFormData(data);
+        appendFormData(json);
         return form;
     }
     

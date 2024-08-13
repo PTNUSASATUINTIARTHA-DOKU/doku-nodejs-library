@@ -203,12 +203,12 @@ If you're one of our earliest users, you might still use our v1 APIs. In order t
 ##### a. convertRequestV1
 Convert DOKU's inquiry and notification from SNAP format (JSON) to v1 format (XML). Feed the inquiry and notification directly to your app without manually mapping parameters or converting file formats.
 ```js
- let formData = snap.SNAPV1Converter(req.body)
-//isTokenValid is boolean, true or false from validateToken function
+ let formData = snap.directInquiryRequestMapping(req.headers,req.body);
+//req headers and req body from request doku when hit inquiry
 ```
 ##### b. convertResponseV1
 Convert your inquiry response to DOKU from v1 format (XML) to SNAP format (JSON). Our library handles response code mapping, allowing you to directly use the converted response and send it to DOKU.
 ```js
-let xmlToJson = snap.v1SNAPConverter(xml)
+let xmlToJson = snap.directInquiryResponseMapping(xml)
 //xml string format
 ```
