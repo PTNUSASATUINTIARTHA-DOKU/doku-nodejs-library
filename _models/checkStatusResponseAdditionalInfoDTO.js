@@ -1,5 +1,5 @@
 class CheckStatusResponseAdditionalInfo {
-    constructor({acquirer}) {
+    constructor(acquirer) {
       this.acquirer = acquirer;
     }
   }

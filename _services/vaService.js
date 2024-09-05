@@ -53,7 +53,6 @@ module.exports = {
                 data:createVaRequestDto
             })
             .then((res) => {
-                console.log(res.data)
                 let response = new CreateVAResponseDTO(res.data);
                 resolve(response);
             })
@@ -87,7 +86,6 @@ module.exports = {
                 resolve(response);
             })
             .catch((err) => {
-                console.log(err)
                 reject(err);
             });
         });
@@ -138,10 +136,10 @@ module.exports = {
             })
             .then((res) => {
                 let response = new CheckStatusVaResponseDTO(res.data);
+             
                 resolve(response);
             })
             .catch((err) => {
-                console.log(err)
                 reject(err);
             });
         });
