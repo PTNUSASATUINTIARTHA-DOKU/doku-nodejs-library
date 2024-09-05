@@ -13,15 +13,6 @@ const FormData = require('form-data');
 const V2_CHANNEL_TO_V1 = require('../_commons/v1ChannelEnum');
 
 module.exports = {
-    generateExternalId() {
-        const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            const r = Math.random() * 16 | 0;
-            const v = c == 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
-        const timestamp = Date.now();
-        return `${uuid}-${timestamp}`;
-    },
     generateRequestHeaderDto(channelId, privateKey, clientId, tokenB2B,timestamp){
     
         return {
@@ -54,7 +45,6 @@ module.exports = {
             "X-EXTERNAL-ID": requestHeaderDto.xExternalId,
             "CHANNEL-ID":requestHeaderDto.channelId
         }
-        console.log(header)
         return await new Promise((resolve, reject) => {
             axios({
                 method: 'post',
@@ -289,7 +279,7 @@ module.exports = {
     
         return iso4217Map[currencyCode] || 'Unknown';
     },
-    mappingRequestSnapToV1(header,body){
+    mappingRequestInquirySnapToV1(header,body){
       return {
             WORDS:"",
             MALLID:header['x-partner-id'],
@@ -300,8 +290,40 @@ module.exports = {
             OCOID:body.inquiryRequestId
         }     
     },
-    jsonToFormData(header,body) {
-        let json = this.mappingRequestSnapToV1(header,body)
+    mappingRequestNotifSnapToV1(header,body){
+        return {
+              AMOUNT:body.paidAmount.value,
+              TRANSIDMERCHANT:body.trxId,
+              WORDS:"",
+              RESPONSECODE:"0000",
+              APPROVALCODE:"",
+              RESULTMSG:"",
+              SESSIONID:"",
+              BANK:body.additionalInfo.channel,
+              MCN:"",
+              PAYMENTDATETIME:header['x-timestamp'],
+              VERIFYID:"",
+              VERIFYSCORE:"",
+              VERIFYSTATUS:"",
+              CURRENCY:this.convertToNumericCode(body.paidAmount.currency),
+              PURCHASECURRENCY:this.convertToNumericCode(body.paidAmount.currency),
+              BRAND:"",
+              CHNAME:body.additionalInfo.senderName,
+              THREEDSECURESTATUS:"",
+              LIABILITY:"",
+              EDUSTATUS:"NA",
+              CUSTOMERID:body.customerNo,
+              TOKENID:header['authorization'],
+              MALLID:header['x-partner-id'],
+              CHAINMERCHANT:"",
+              STATUSTYPE:"P",
+              PAYMENTCHANNEL:V2_CHANNEL_TO_V1[body.additionalInfo.channel]||null,
+              PAYMENTCODE:body.virtualAccountNo,
+              OCOID:body.inquiryRequestId
+          }     
+      },
+    jsonToFormData(header,body,type) {
+        let json = type === "inquiry"?this.mappingRequestInquirySnapToV1(header,body):this.mappingRequestNotifSnapToV1(header,body)
         const form = new FormData();
     
         function appendFormData(data, parentKey = '') {

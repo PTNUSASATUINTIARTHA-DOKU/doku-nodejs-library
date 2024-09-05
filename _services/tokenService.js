@@ -174,22 +174,60 @@ module.exports = {
         var requestSignatureBase64String = CryptoJS.enc.Base64.stringify(signatureBytes);
         return requestSignatureBase64String;
     },
-    generateSymmetricSignature(symetricSignatureComponentDTO) {
-        const body = symetricSignatureComponentDTO.requestBody;
-        var minifyJsonObject = JSON.stringify(body, null, 0)
+    generateSignatureSymmetric(stringToSign, clientSecret) {
+        const hmac = crypto.createHmac('sha512', clientSecret);
+        hmac.update(stringToSign);
+        return hmac.digest('base64');
+    },
+    generateExpectedSignature(clearMessage,clientSecret) {
+        console.debug("Expected component signature (header component): \n", clearMessage);
+        const decodedKey = Buffer.from(clientSecret, 'utf-8');
+        const hmac = crypto.createHmac('sha512', decodedKey);
+        hmac.update(clearMessage);
+        const hmacSha512DigestBytes = hmac.digest();
+        const expectedSignature = hmacSha512DigestBytes.toString('base64');
+        console.debug("Expected Signature: ", expectedSignature);
+        return expectedSignature;
+    },
+    generateSymmetricSignature(httpMethod,endPointUrl,tokenB2B,requestBody,timestamp,secretKey) {
+        const body = requestBody;
+        var minifyJsonObject = JSON.stringify(body)
         console.log('minifyJsonObject: ' + minifyJsonObject);
         const bodySha256 = CryptoJS.enc.Base64.stringify(CryptoJS.SHA256(minifyJsonObject)).toLowerCase();
         console.log('bodySha256: ' + bodySha256);
-        const data = `${symetricSignatureComponentDTO.httpMethod}:${symetricSignatureComponentDTO.endpointUrl}:${symetricSignatureComponentDTO.accessToken}:${bodySha256}:${symetricSignatureComponentDTO.timestamp}`;
+        const data = `${httpMethod}:${endPointUrl}:${tokenB2B}:${bodySha256}:${timestamp}`;
         console.log('stringtosign: ' + data);
-        
-        // const minifiedJson = this.minifyJSON(symetricSignatureComponentDTO.requestBody);
-        // const lowercaseHexHash = minifiedJson;
-        // const stringToSign = `${symetricSignatureComponentDTO.httpMethod}:${symetricSignatureComponentDTO.endpointUrl}:${symetricSignatureComponentDTO.accessToken}:${lowercaseHexHash}:${symetricSignatureComponentDTO.timestamp}`;
-        // var signature = this.createSignature(stringToSign,symetricSignatureComponentDTO.clientSecret);
-        // return signature;
-        var signatureHash = this.createSignature(data,symetricSignatureComponentDTO.clientSecret);
+        var signatureHash = this.generateExpectedSignature(data,secretKey);
         console.log("Signature: " + signatureHash);
         return signatureHash
+    },
+    createTokenB2b2cRequestDto(authCode){
+        const request = new TokenB2b2cRequestDto();
+        request.grantType = "authorization_code";
+        request.authCode = authCode
+        return request;
+    },
+    async hitTokenB2b2cApi(tokenB2b2cRequestDto, timestamp, signature, clientId, isProduction){
+        const base_url_api = config.getBaseUrl(isProduction) + config.ACCESS_TOKEN_B2B2C;
+        let header = {
+            "X-CLIENT-KEY": clientId,
+            "X-TIMESTAMP": timestamp,
+            "X-SIGNATURE": signature
+        };
+       
+        return await new Promise((resolve, reject) => {
+            axios({
+                method: 'post',
+                url: base_url_api,
+                headers: header,
+                data: tokenB2b2cRequestDto
+            })
+            .then((res) => {
+                resolve(res.data);
+            })
+            .catch((err) => {
+                reject(err);
+            });
+        });
     }
 };

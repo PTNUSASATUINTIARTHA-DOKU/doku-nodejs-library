@@ -40,4 +40,5 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
-/example-app
+/example-app/
+/example-app-test/

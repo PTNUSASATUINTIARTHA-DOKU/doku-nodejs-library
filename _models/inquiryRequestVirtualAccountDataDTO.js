@@ -17,6 +17,7 @@ class InquiryRequestVirtualAccountDataDTO {
         this.inquiryReason = new InquiryReasonDto(data.inquiryReason);
         this.inquiryRequestId = data.inquiryRequestId;
     }
+    
 
     toObject() {
         return {

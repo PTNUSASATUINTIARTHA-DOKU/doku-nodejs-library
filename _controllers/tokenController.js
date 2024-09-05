@@ -1,5 +1,6 @@
 "use strict"
 
+const commonFunction = require("../_commons/commonFunction");
 const TokenService = require("../_services/tokenService");
 const vaService = require("../_services/vaService");
 
@@ -64,10 +65,16 @@ class TokenController{
         return TokenService.validateTokenB2B(tokenWithoutBearer, publicKey)
     }
     doGenerateRequestHeader(privateKey, clientId, tokenB2B){
-        const externalId = vaService.generateExternalId();
+        const externalId = commonFunction.generateExternalId();
         const timestamp = TokenService.generateTimestamp();
         const signature =  TokenService.createSignature(privateKey, clientId, timestamp);
         return vaService.createVaRequesHeaderDto(channelId,clientId,tokenB2B, timestamp, externalId, signature);
+    }
+    async getTokenB2b2c(authCode, privateKey, clientId, isProduction){
+        const timestamp =  TokenService.generateTimestamp() - 7;
+        const signature =  TokenService.createSignature(privateKey, clientId, timestamp);
+        const tokenB2b2cRequestDto = TokenService.createTokenB2b2cRequestDto(authCode);
+	    return await TokenService.hitTokenB2b2cApi(tokenB2b2cRequestDto, timestamp, signature, clientId, isProduction);
     }
 
 }
