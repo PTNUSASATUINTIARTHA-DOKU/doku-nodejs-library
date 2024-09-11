@@ -26,20 +26,10 @@ class TokenController{
     }
     validateSignatureSymmetric(request, tokenB2B,secretKey,endPointUrl){
         let timestamp = request.get('x-timestamp');
-        // console.log("token : "+ tokenB2B)
-        let symetricSignatureComponentDTO = {
-            httpMethod: 'POST',
-            endpointUrl: endPointUrl,
-            accessToken: tokenB2B,
-            requestBody: request.body,
-            timestamp: timestamp,
-            clientSecret: secretKey
-        };
-        // let signature = TokenService.createSymetricSignature(symetricSignatureComponentDTO)
-        let signature = TokenService.generateSymmetricSignature(symetricSignatureComponentDTO);
-        // console.log("signature : "+signature)
+        let  httpMethod= 'POST';
+        let signature = TokenService.generateSymmetricSignature(httpMethod,endPointUrl,tokenB2B,request.body,timestamp,secretKey);
         let requestSignature = request.get('x-signature');
-        return TokenService.compareSignatures(requestSignature,signature)
+        return TokenService.compareSignaturesSymmetric(requestSignature,signature)
     }
 
     async getTokenB2B(privateKey, clientId, isProduction){

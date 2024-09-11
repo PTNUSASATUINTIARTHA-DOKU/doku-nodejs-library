@@ -54,12 +54,12 @@ describe('Snap class', () => {
     describe('checkStatusVa', () => {
         test('should call VaController.doCheckStatusVa with correct parameters when token is valid', async () => {
             TokenController.prototype.isTokenInvalid.mockReturnValue(false);
-            const checkVARequestDTO = { someField: 'value' };
+            const checkVARequestDTO = { someField: 'value' ,validateCheckStatusVaRequestDto:jest.fn()};
             const expectedResponse = { status: 'SUCCESS' };
             VaController.prototype.doCheckStatusVa.mockResolvedValue(expectedResponse);
 
             const result = await snap.checkStatusVa(checkVARequestDTO);
-
+            expect(checkVARequestDTO.validateCheckStatusVaRequestDto).toHaveBeenCalled();
             expect(TokenController.prototype.isTokenInvalid).toHaveBeenCalledWith(
                 snap.tokenB2B, 
                 snap.tokenExpiresIn, 
@@ -79,11 +79,11 @@ describe('Snap class', () => {
 
         test('should handle errors from VaController.doCheckStatusVa', async () => {
             TokenController.prototype.isTokenInvalid.mockReturnValue(false);
-            const checkVARequestDTO = { someField: 'value' };
+            const checkVARequestDTO = { someField: 'value' ,validateCheckStatusVaRequestDto:jest.fn()};
             VaController.prototype.doCheckStatusVa.mockRejectedValue(new Error('Failed to check status'));
 
             await expect(snap.checkStatusVa(checkVARequestDTO)).rejects.toThrow('Failed to check status');
-
+            expect(checkVARequestDTO.validateCheckStatusVaRequestDto).toHaveBeenCalled();
             expect(TokenController.prototype.isTokenInvalid).toHaveBeenCalledWith(
                 snap.tokenB2B, 
                 snap.tokenExpiresIn, 

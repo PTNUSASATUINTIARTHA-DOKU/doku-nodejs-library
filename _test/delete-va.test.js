@@ -60,13 +60,14 @@ describe('Snap class', () => {
 
             // Mock VaController.doDeletePaymentCode response
             const deleteVaRequestDto = {
-                someField: 'value'
+                someField: 'value',
+                validateDeleteVaRequest: jest.fn(),
             };
             const expectedResponse = { status: 'DELETED' };
             VaController.prototype.doDeletePaymentCode.mockResolvedValue(expectedResponse);
 
             const result = await snap.deletePaymentCode(deleteVaRequestDto);
-
+            expect(deleteVaRequestDto.validateDeleteVaRequest).toHaveBeenCalled();
             expect(TokenController.prototype.isTokenInvalid).toHaveBeenCalled();
             expect(VaController.prototype.doDeletePaymentCode).toHaveBeenCalledWith(
                 deleteVaRequestDto,
@@ -86,13 +87,14 @@ describe('Snap class', () => {
 
             // Mock VaController.doDeletePaymentCode response
             const deleteVaRequestDto = {
-                someField: 'value'
+                someField: 'value',
+                validateDeleteVaRequest: jest.fn(),
             };
             const expectedResponse = { status: 'DELETED' };
             VaController.prototype.doDeletePaymentCode.mockResolvedValue(expectedResponse);
 
             const result = await snap.deletePaymentCode(deleteVaRequestDto);
-
+            expect(deleteVaRequestDto.validateDeleteVaRequest).toHaveBeenCalled();
             expect(TokenController.prototype.isTokenInvalid).toHaveBeenCalled();
             expect(TokenController.prototype.getTokenB2B).toHaveBeenCalled();
             expect(VaController.prototype.doDeletePaymentCode).toHaveBeenCalledWith(
@@ -111,12 +113,13 @@ describe('Snap class', () => {
 
             // Mock VaController.doDeletePaymentCode to throw an error
             const deleteVaRequestDto = {
-                someField: 'value'
+                someField: 'value',
+                validateDeleteVaRequest: jest.fn(),
             };
             VaController.prototype.doDeletePaymentCode.mockRejectedValue(new Error('Failed to delete payment code'));
 
             await expect(snap.deletePaymentCode(deleteVaRequestDto)).rejects.toThrow('Failed to delete payment code');
-
+            expect(deleteVaRequestDto.validateDeleteVaRequest).toHaveBeenCalled();
             expect(TokenController.prototype.isTokenInvalid).toHaveBeenCalledWith(
                 snap.tokenB2B,
                 snap.tokenExpiresIn,
@@ -137,11 +140,12 @@ describe('Snap class', () => {
             TokenController.prototype.getTokenB2B.mockRejectedValue(new Error('Failed to refresh token'));
 
             const deleteVaRequestDto = {
-                someField: 'value'
+                someField: 'value',
+                validateDeleteVaRequest: jest.fn(),
             };
 
             await expect(snap.deletePaymentCode(deleteVaRequestDto)).rejects.toThrow('Failed to refresh token');
-
+            expect(deleteVaRequestDto.validateDeleteVaRequest).toHaveBeenCalled();
             expect(TokenController.prototype.isTokenInvalid).toHaveBeenCalledWith(
                 snap.tokenB2B,
                 snap.tokenExpiresIn,

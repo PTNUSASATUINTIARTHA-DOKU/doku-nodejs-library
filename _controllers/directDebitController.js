@@ -67,7 +67,7 @@ class DirectDebitController {
         return await directDebitService.doPaymentProcess(header, paymentRequestDto, isProduction);
     }
 
-    async doRegistrationCardBind(cardRegistrationRequestDto, channelId, privateKey, clientId, tokenB2B, secretKey, isProduction) {
+    async doRegistrationCardBind(cardRegistrationRequestDto, channelId, clientId, tokenB2B, secretKey, isProduction) {
         let timestamp = tokenService.generateTimestamp();
         let endPointUrl = Config.DIRECT_DEBIT_CARD_BINDING_URL;
         let httpMethod = "POST";
@@ -77,6 +77,17 @@ class DirectDebitController {
             timestamp, signature, clientId, externalId, channelId, tokenB2B, endPointUrl, requestDto: cardRegistrationRequestDto
         });
         return await directDebitService.doRegistrationCardBindProcess(header, cardRegistrationRequestDto, isProduction);
+    }
+    async doUnRegistCardUnBind(cardUnRegistUnbindRequestDTO, clientId,tokenB2B, secretKey, isProduction){
+        let timestamp = tokenService.generateTimestamp();
+        let endPointUrl = Config.DIRECT_DEBIT_CARD_UNBINDING_URL;
+        let httpMethod = "POST";
+        let signature = tokenService.generateSymmetricSignature(httpMethod, endPointUrl, tokenB2B, cardUnRegistUnbindRequestDTO, timestamp, secretKey);
+        let externalId = commonFunction.generateExternalId();
+        let header = requestHeader.generateRequestHeader({
+            timestamp, signature, externalId,clientId, tokenB2B, endPointUrl, requestDto: cardUnRegistUnbindRequestDTO
+        });
+        return await directDebitService.doUnRegisterCardUnBindProcess(header, cardUnRegistUnbindRequestDTO, isProduction);
     }
 
     async doRefund(refundRequestDto, privateKey, clientId, tokenB2B, tokenB2b2c, secretKey, isProduction, deviceId) {

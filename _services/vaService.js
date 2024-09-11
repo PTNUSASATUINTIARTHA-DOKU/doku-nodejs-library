@@ -36,7 +36,6 @@ module.exports = {
     },
     async createVa(requestHeaderDto, createVaRequestDto,isProduction) {
         const base_url_api = config.getBaseUrl(isProduction) + config.CREATE_VA;
-
         let header= {
             "X-PARTNER-ID": requestHeaderDto.xPartnerId,
             "X-TIMESTAMP": requestHeaderDto.xTimestamp,
@@ -45,6 +44,7 @@ module.exports = {
             "X-EXTERNAL-ID": requestHeaderDto.xExternalId,
             "CHANNEL-ID":requestHeaderDto.channelId
         }
+        console.log(header)
         return await new Promise((resolve, reject) => {
             axios({
                 method: 'post',

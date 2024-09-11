@@ -10,7 +10,7 @@ class CheckStatusVARequestDto {
     this.additionalInfo = additionalInfo;
   }
 
-  static validateCheckStatusVaRequestDto(data) {
+  validateCheckStatusVaRequestDto() {
     const schema = Joi.object({
       partnerServiceId:  Joi.string().length(8).pattern(/^\s{0,7}\d{1,8}$/).required(),
       customerNo:  Joi.string().max(20).pattern(/^\d+$/).required(),
@@ -33,7 +33,10 @@ class CheckStatusVARequestDto {
       additionalInfo: Joi.any().optional()
     });
 
-    return schema.validate(data);
+    const { error } = schema.validate(this, { abortEarly: false });
+    if (error) {
+        throw new Error(`Validation failed: ${error.details.map(x => x.message).join(', ')}`);
+    }
   }
 }
 

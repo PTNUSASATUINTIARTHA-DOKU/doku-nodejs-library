@@ -62,13 +62,96 @@ class CreateVARequestDto {
             virtualAccountTrxType: Joi.string().length(1).required(),
             expiredDate: Joi.string().pattern(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}$/).required(),
         });
-
+        
         const { error } = schema.validate(this, { abortEarly: false });
         if (error) {
             throw new Error(`Validation failed: ${error.details.map(x => x.message).join(', ')}`);
         }
     }
-
+    validateSimulator(){
+        if(this.trxId.startsWith("1114")){
+            return {
+                "responseCode": "2002700",
+                "responseMessage": "Successful",
+                "virtualAccountData": {
+                    "partnerServiceId": "90341589",
+                    "customerNo": "00000077",
+                    "virtualAccountNo": "9034153700000077",
+                    "virtualAccountName": "Jokul Doe 001",
+                    "virtualAccountEmail": "jokul@email.com",
+                    "virtualAccountPhone": "",
+                    "trxId": "PGPWF167",
+                    "totalAmount": {
+                        "value": "13000.00",
+                        "currency": "IDR"
+                    },
+                    "virtualAccountTrxType": "C",
+                    "expiredDate": "2024-02-02T15:02:29+07:00"
+                }
+            };
+        }else
+        if (this.trxId.startsWith("111") && this.trxId[3] !== '4') {
+            return {
+                "responseCode": "4012701",
+                "responseMessage": "Access Token Invalid (B2B)"
+            };
+        }
+        else if (this.trxId.startsWith("112")) {
+            return {
+                "responseCode": "4012700",
+                "responseMessage": "Unauthorized. Signature Not Match"
+            };
+        }
+        else if (this.trxId.startsWith("113")) {
+            return {
+                "responseCode": "4002702",
+                "responseMessage": "Invalid Mandatory Field {partnerServiceId}",
+                "virtualAccountData": {
+                    "partnerServiceId": "",
+                    "customerNo": "00000000000000000000",
+                    "virtualAccountNo": "0000000000000000000000000000",
+                    "virtualAccountName": "Jokul Doe 001",
+                    "virtualAccountEmail": "jokul@email.com",
+                    "virtualAccountPhone": "",
+                    "trxId": "PGPWF123",
+                    "totalAmount": {
+                        "value": "13000.00",
+                        "currency": "IDR"
+                    },
+                    "virtualAccountTrxType": "1",
+                    "expiredDate": "2023-10-31T23:59:59+07:00"
+                }
+            };
+        }
+        else if (this.trxId.startsWith("114")) {
+            return {
+                "responseCode": "4002701",
+                "responseMessage": "Invalid Field Format {totalAmount.currency}",
+                "virtualAccountData": {
+                    "partnerServiceId": "90341537",
+                    "customerNo": "00000000000000000000",
+                    "virtualAccountNo": "0000000000000000000000000000",
+                    "virtualAccountName": "Jokul Doe 001",
+                    "virtualAccountEmail": "jokul@email.com",
+                    "virtualAccountPhone": "",
+                    "trxId": "PGPWF123",
+                    "totalAmount": {
+                        "value": "13000.00",
+                        "currency": "1"
+                    },
+                    "virtualAccountTrxType": "1",
+                    "expiredDate": "2023-10-31T23:59:59+07:00"
+                }
+            };
+        }
+        else if (this.trxId.startsWith("115")) {
+            console.log("trxId dimulai dengan 115");
+            return {
+                "responseCode": "4092700",
+                "responseMessage": "Conflict"
+            };
+        }
+    }
     toObject() {
         return {
             partnerServiceId: this.partnerServiceId,

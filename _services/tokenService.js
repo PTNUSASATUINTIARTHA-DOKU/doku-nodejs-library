@@ -30,12 +30,10 @@ module.exports = {
     generateSignature(privateKey, clientID, xTimestamp) {
         try {
             const signatureElements = `${clientID}|${xTimestamp}`;
-            console.log('Signature Elements:', signatureElements);
             const sign = crypto.createSign('RSA-SHA256');
             sign.update(signatureElements);
             sign.end();
             const signatureResult = sign.sign(privateKey, 'base64');
-            console.log("Generated Signature: " + signatureResult);
             return signatureResult;
         } catch (error) {
             throw error;
@@ -53,12 +51,8 @@ module.exports = {
         return signature.toString('base64');
     },
     compareSignatures(requestSignature,newSignature,publicKey,clientID,xTimestamp){
-        console.log("compare signature")
-        console.log("req signature: "+requestSignature)
-        console.log("new signature: "+newSignature);
         const data = Buffer.from(`${clientID}|${xTimestamp}`);
         try {
-            // Buat verifikasi
             const isVerified = crypto.verify(
                 'RSA-SHA256',
                 Buffer.from(data),
@@ -68,14 +62,18 @@ module.exports = {
                 },
                 Buffer.from(newSignature, 'base64')
             );
-
-            if (isVerified) {
-                console.log('Tanda tangan valid');
-            } else {
-                console.log('Tanda tangan tidak valid');
-            }
-            console.log(isVerified)
             return isVerified
+        } catch (error) {
+            console.error('Error during verification:', error);
+        }
+    },
+    compareSignaturesSymmetric(requestSignature,newSignature){
+        try {
+            if(requestSignature.toLowerCase() == newSignature.toLowerCase()){
+                return true
+            }else{
+                return false
+            }
         } catch (error) {
             console.error('Error during verification:', error);
         }
@@ -180,25 +178,21 @@ module.exports = {
         return hmac.digest('base64');
     },
     generateExpectedSignature(clearMessage,clientSecret) {
-        console.debug("Expected component signature (header component): \n", clearMessage);
         const decodedKey = Buffer.from(clientSecret, 'utf-8');
         const hmac = crypto.createHmac('sha512', decodedKey);
         hmac.update(clearMessage);
         const hmacSha512DigestBytes = hmac.digest();
         const expectedSignature = hmacSha512DigestBytes.toString('base64');
-        console.debug("Expected Signature: ", expectedSignature);
         return expectedSignature;
     },
     generateSymmetricSignature(httpMethod,endPointUrl,tokenB2B,requestBody,timestamp,secretKey) {
         const body = requestBody;
         var minifyJsonObject = JSON.stringify(body)
-        console.log('minifyJsonObject: ' + minifyJsonObject);
         const bodySha256 = CryptoJS.enc.Base64.stringify(CryptoJS.SHA256(minifyJsonObject)).toLowerCase();
         console.log('bodySha256: ' + bodySha256);
         const data = `${httpMethod}:${endPointUrl}:${tokenB2B}:${bodySha256}:${timestamp}`;
         console.log('stringtosign: ' + data);
         var signatureHash = this.generateExpectedSignature(data,secretKey);
-        console.log("Signature: " + signatureHash);
         return signatureHash
     },
     createTokenB2b2cRequestDto(authCode){

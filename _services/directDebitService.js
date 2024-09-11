@@ -2,6 +2,7 @@
 
 const { default: axios } = require("axios");
 const Config = require("../_commons/config");
+const CardUnRegistUnbindResponseDto = require("../_models/cardUnregistUnbindResponseDTO");
 
 module.exports = {
     async  doAccountUnBindingProcess(requestHeaderDto, accountUnbindingRequestDto, isProduction) {
@@ -43,7 +44,6 @@ module.exports = {
             "X-EXTERNAL-ID": requestHeaderDto.xExternalId,
             "X-IP-ADDRESS":requestHeaderDto.xIpAddres
         }
-        console.log(header)
         return await new Promise((resolve, reject) => {
             axios({
                 method: 'post',
@@ -167,6 +167,32 @@ module.exports = {
             })
             .then((res) => {
                 let response = res.data;
+                resolve(response);
+            })
+            .catch((err) => {
+                reject(err);
+            });
+        });
+    },
+    async doUnRegisterCardUnBindProcess(header,cardUnRegistUnbindRequestDTO,isProduction){
+        const base_url_api = Config.getBaseUrl(isProduction) + Config.DIRECT_DEBIT_CARD_UNBINDING_URL;
+        let headerObj= {
+            "X-PARTNER-ID": header.xPartnerId,
+            "X-TIMESTAMP": header.xTimestamp,
+            "X-SIGNATURE": header.xSignature,
+            "Authorization":"Bearer " + header.authorization,
+            "X-EXTERNAL-ID": header.xExternalId,
+            "Authorization":header.xAuthorization
+        }
+        return await new Promise((resolve, reject) => {
+            axios({
+                method: 'post',
+                url: base_url_api,
+                headers: headerObj,
+                data:cardUnRegistUnbindRequestDTO
+            })
+            .then((res) => {
+                let response = new CardUnRegistUnbindResponseDto(res.data)
                 resolve(response);
             })
             .catch((err) => {

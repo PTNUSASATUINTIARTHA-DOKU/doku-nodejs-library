@@ -24,6 +24,7 @@ class Config{
   static DIRECT_DEBIT_BALANCE_INQUIRY_URL = '/direct-debit/core/v1/balance-inquiry';
   static DIRECT_DEBIT_CARD_BINDING_URL = '/direct-debit/core/v1/registration-card-bind';
   static DIRECT_DEBIT_REFUND_URL = '/direct-debit/core/v1/debit/refund';
-  static DIRECT_DEBIT_CHECK_STATUS_URL = '/orders/v1.0/debit/status'
+  static DIRECT_DEBIT_CHECK_STATUS_URL = '/orders/v1.0/debit/status';
+  static DIRECT_DEBIT_CARD_UNBINDING_URL = '/direct-debit/core/v1/registration-card-unbind';
 }
 module.exports = Config;

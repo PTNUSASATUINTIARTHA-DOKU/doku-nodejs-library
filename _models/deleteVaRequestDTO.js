@@ -10,7 +10,7 @@ class DeleteVaRequestDto {
     this.additionalInfo = new DeleteVaRequestAdditionalInfo(additionalInfo);
   }
 
-  static validateDeleteVaRequest(data) {
+  validateDeleteVaRequest() {
     const schema = Joi.object({
       partnerServiceId:  Joi.string().length(8).pattern(/^\s{0,7}\d{1,8}$/).required(),
       customerNo: Joi.alternatives().try(
@@ -34,7 +34,11 @@ class DeleteVaRequestDto {
       }).required()
     });
 
-    return schema.validate(data);
+    const { error } = schema.validate(this, { abortEarly: false });
+    if (error) {
+        throw new Error(`Validation failed: ${error.details.map(x => x.message).join(', ')}`);
+    }
+    
   }
 
   toObject() {

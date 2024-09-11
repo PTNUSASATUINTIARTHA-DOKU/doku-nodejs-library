@@ -202,12 +202,14 @@ let secretKey = 'SK-tDzY6MSLBWlNXy3qCsUU';
   
       const createVARequestDto = {
         validateVaRequestDto: jest.fn(),
+        validateSimulator: jest.fn(),
         // Tambahkan properti dan metode lain jika diperlukan
       };
   
       const result = await snapInstance.createVa(createVARequestDto);
   
       expect(createVARequestDto.validateVaRequestDto).toHaveBeenCalled();
+      expect(createVARequestDto.validateSimulator).toHaveBeenCalled();
       expect(result).toEqual({ success: true });
     });
   
@@ -224,12 +226,14 @@ let secretKey = 'SK-tDzY6MSLBWlNXy3qCsUU';
   
       const createVARequestDto = {
         validateVaRequestDto: jest.fn(),
+        validateSimulator: jest.fn(),
         // Tambahkan properti dan metode lain jika diperlukan
       };
   
       const result = await snapInstance.createVa(createVARequestDto);
   
       expect(createVARequestDto.validateVaRequestDto).toHaveBeenCalled();
+      expect(createVARequestDto.validateSimulator).toHaveBeenCalled();
       expect(TokenController.prototype.getTokenB2B).toHaveBeenCalled();
       expect(VaController.prototype.createVa).toHaveBeenCalledWith(
         createVARequestDto,

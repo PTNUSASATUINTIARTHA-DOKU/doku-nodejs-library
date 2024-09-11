@@ -12,9 +12,6 @@ class VaController{
     async createVa(createVaRequestDto,privateKey, clientId, tokenB2B, isProduction,secretKey){
         let timestamp = tokenService.generateTimestamp();
         let signature = tokenService.generateSignature(privateKey, clientId, timestamp)
-        // let endPointUrl = Config.CREATE_VA;
-        // let httpMethod = "POST"
-        // let signature = tokenService.generateSymmetricSignature(httpMethod,endPointUrl,tokenB2B,createVaRequestDto,timestamp,secretKey);
         let externalId = commonFunction.generateExternalId();
         let header = vaService.createVaRequesHeaderDto(createVaRequestDto.additionalInfo.channel, clientId, tokenB2B, timestamp, externalId, signature);
         return VaService.createVa(header, createVaRequestDto, isProduction)
