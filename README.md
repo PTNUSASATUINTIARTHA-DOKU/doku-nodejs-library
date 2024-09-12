@@ -86,6 +86,42 @@ await snap.createVa(createVaRequestDto).then(createVaResponseDto => {
 });
 ```
 
+###### updateVa Function
+Call the `updateVa` function to update Va
+
+```js
+await snap.updateVa(updateVaRequestDto).then(updateVaResponseDto => {
+    // You can get your payment code from variable createVaResponseDto
+});
+```
+
+###### deleteVa Function
+Call the `deleteVa` function to delete Va
+
+```js
+await snap.deletePaymentCode(deleteVaRequestDto).then(deleteVaResponseDto => {
+    // You can get your payment code from variable createVaResponseDto
+});
+```
+
+###### deleteVa Function
+Call the `deleteVa` function to delete Va
+ 
+```js
+await snap.deletePaymentCode(deleteVaRequestDto).then(deleteVaResponseDto => {
+    // You can get your payment code from variable createVaResponseDto
+});
+```
+
+###### checkStatusVa Function
+Call the `checkStatusVa` function to checkStatus Va
+ 
+```js
+await snap.checkStatusVa(checkVaRequestDto).then(checkVaResponseDto => {
+    // You can get your payment code from variable createVaResponseDto
+});
+```
+
 ##### DIPC
 ###### #coming-soon inquiryResponse Function
 If you use the DIPC feature, you can generate your own paycode and allow your customers to pay without direct communication with DOKU. After customers initiate the payment via the acquirer's channel, DOKU sends an inquiry request to you for validation. This function is applicable for DIPC.
