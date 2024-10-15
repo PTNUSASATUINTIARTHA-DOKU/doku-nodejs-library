@@ -10,6 +10,24 @@ class PaymentNotificationRequestBodyDto {
         this.virtualAccountEmail = virtualAccountEmail;
         this.virtualAccountPhone = virtualAccountPhone;
     }
+    validateSimulator(){
+        if (this.trxId.startsWith("1110")) {
+            return {
+                "responseCode": "2002500",
+                "responseMessage": "success"
+            };
+        }else if(this.trxId.startsWith("1111")){
+            return {
+                "responseCode": "4042512",
+                "responseMessage": "Bill not found"
+            };
+        }else if(this.trxId.startsWith("1112")){
+            return {
+                "responseCode": "4042513",
+                "responseMessage": "Invalid Amount"
+            };
+        }
+    }
 
     toObject() {
         return {

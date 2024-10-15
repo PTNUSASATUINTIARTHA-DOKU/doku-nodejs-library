@@ -10,6 +10,15 @@ class DeleteVaRequestDto {
     this.additionalInfo = new DeleteVaRequestAdditionalInfo(additionalInfo);
   }
 
+  validateSimulator(){
+    if (this.trxId.startsWith("1118")) {
+        return {
+            "responseCode": "2003100",
+            "responseMessage": "success"
+        };
+    }
+}
+
   validateDeleteVaRequest() {
     const schema = Joi.object({
       partnerServiceId:  Joi.string().length(8).pattern(/^\s{0,7}\d{1,8}$/).required(),

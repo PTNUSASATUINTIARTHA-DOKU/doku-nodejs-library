@@ -19,26 +19,26 @@ class DirectDebitController {
         return await directDebitService.doAccountUnBindingProcess(header, AccountUnbindingRequestDto, isProduction);
     }
 
-    async doAccountBinding(AccountBindingRequestDto, privateKey, clientId, tokenB2B, ipAddress, secretKey, isProduction) {
+    async doAccountBinding(AccountBindingRequestDto, privateKey, clientId, tokenB2B, ipAddress,deviceId, secretKey, isProduction) {
         let timestamp = tokenService.generateTimestamp();
         let endPointUrl = Config.DIRECT_DEBIT_ACCOUNT_BINDING_URL;
         let httpMethod = "POST";
         let signature = tokenService.generateSymmetricSignature(httpMethod, endPointUrl, tokenB2B, AccountBindingRequestDto, timestamp, secretKey);
-        let externalId = commonFunction.generateExternalId();
+        let externalId = Date.now().toString();
         let header = requestHeader.generateRequestHeader({
-            timestamp, signature, clientId, externalId, ipAddress, tokenB2B, endPointUrl, requestDto: AccountBindingRequestDto
+            timestamp, signature, clientId, externalId, ipAddress,deviceId, tokenB2B, endPointUrl, requestDto: AccountBindingRequestDto
         });
         return await directDebitService.doAccountBindingProcess(header, AccountBindingRequestDto, isProduction);
     }
 
-    async doPaymentJumpApp(paymentJumpAppRequestDto, privateKey, clientId, tokenB2B, ipAddress, secretKey, isProduction) {
+    async doPaymentJumpApp(paymentJumpAppRequestDto, privateKey, clientId, tokenB2B, ipAddress,deviceId, secretKey, isProduction) {
         let timestamp = tokenService.generateTimestamp();
         let endPointUrl = Config.DIRECT_DEBIT_PAYMENT_URL;
         let httpMethod = "POST";
         let signature = tokenService.generateSymmetricSignature(httpMethod, endPointUrl, tokenB2B, paymentJumpAppRequestDto, timestamp, secretKey);
         let externalId = commonFunction.generateExternalId();
         let header = requestHeader.generateRequestHeader({
-            timestamp, signature, clientId, externalId, ipAddress, channelId: "H2H", tokenB2B, endPointUrl, requestDto: paymentJumpAppRequestDto
+            timestamp, signature, clientId, externalId, ipAddress, channelId: "H2H", tokenB2B, endPointUrl, requestDto: paymentJumpAppRequestDto,deviceId
         });
         return await directDebitService.doPaymentJumpAppProcess(header, paymentJumpAppRequestDto, isProduction);
     }
@@ -55,30 +55,34 @@ class DirectDebitController {
         return await directDebitService.doBalanceInquiryProcess(header, balanceInquiryRequestDto, isProduction);
     }
 
-    async doPayment(paymentRequestDto, privateKey, clientId, tokenB2B, tokenB2b2c, secretKey, isProduction, deviceId) {
+    async doPayment(paymentRequestDto, privateKey, clientId, tokenB2B, tokenB2b2c, secretKey, isProduction, ipAddress) {
         let timestamp = tokenService.generateTimestamp();
         let endPointUrl = Config.DIRECT_DEBIT_PAYMENT_URL;
         let httpMethod = "POST";
         let signature = tokenService.generateSymmetricSignature(httpMethod, endPointUrl, tokenB2B, paymentRequestDto, timestamp, secretKey);
         let externalId = commonFunction.generateExternalId();
         let header = requestHeader.generateRequestHeader({
-            timestamp, signature, clientId, externalId, tokenB2B, tokenB2b2c, endPointUrl, requestDto: paymentRequestDto, deviceId
+            timestamp, signature, clientId, externalId, tokenB2B, tokenB2b2c, endPointUrl, requestDto: paymentRequestDto, ipAddress
         });
         return await directDebitService.doPaymentProcess(header, paymentRequestDto, isProduction);
     }
 
-    async doRegistrationCardBind(cardRegistrationRequestDto, channelId, clientId, tokenB2B, secretKey, isProduction) {
+    async doRegistrationCardBind(cardRegistrationRequestDto, clientId, tokenB2B, secretKey, isProduction) {
+        let cardData = JSON.stringify(cardRegistrationRequestDto.cardData)
+        let encryptCbc = directDebitService.encryptCbc(cardData,secretKey)
+        cardRegistrationRequestDto.cardData = encryptCbc;
         let timestamp = tokenService.generateTimestamp();
         let endPointUrl = Config.DIRECT_DEBIT_CARD_BINDING_URL;
         let httpMethod = "POST";
         let signature = tokenService.generateSymmetricSignature(httpMethod, endPointUrl, tokenB2B, cardRegistrationRequestDto, timestamp, secretKey);
-        let externalId = commonFunction.generateExternalId();
+        let externalId = Date.now().toString();
         let header = requestHeader.generateRequestHeader({
-            timestamp, signature, clientId, externalId, channelId, tokenB2B, endPointUrl, requestDto: cardRegistrationRequestDto
+            timestamp, signature, clientId, externalId, tokenB2B, endPointUrl, requestDto: cardRegistrationRequestDto
         });
         return await directDebitService.doRegistrationCardBindProcess(header, cardRegistrationRequestDto, isProduction);
     }
     async doUnRegistCardUnBind(cardUnRegistUnbindRequestDTO, clientId,tokenB2B, secretKey, isProduction){
+        console.log( cardUnRegistUnbindRequestDTO.cardData)
         let timestamp = tokenService.generateTimestamp();
         let endPointUrl = Config.DIRECT_DEBIT_CARD_UNBINDING_URL;
         let httpMethod = "POST";
@@ -90,14 +94,14 @@ class DirectDebitController {
         return await directDebitService.doUnRegisterCardUnBindProcess(header, cardUnRegistUnbindRequestDTO, isProduction);
     }
 
-    async doRefund(refundRequestDto, privateKey, clientId, tokenB2B, tokenB2b2c, secretKey, isProduction, deviceId) {
+    async doRefund(refundRequestDto, privateKey, clientId, tokenB2B, tokenB2b2c, secretKey, isProduction,ipAddress,deviceId) {
         let timestamp = tokenService.generateTimestamp();
         let endPointUrl = Config.DIRECT_DEBIT_REFUND_URL;
         let httpMethod = "POST";
         let signature = tokenService.generateSymmetricSignature(httpMethod, endPointUrl, tokenB2B, refundRequestDto, timestamp, secretKey);
         let externalId = commonFunction.generateExternalId();
         let header = requestHeader.generateRequestHeader({
-            timestamp, signature, clientId, externalId, tokenB2B, tokenB2b2c, endPointUrl, requestDto: refundRequestDto, deviceId
+            timestamp, signature, clientId, externalId, tokenB2B, tokenB2b2c, endPointUrl, requestDto: refundRequestDto, deviceId,ipAddress
         });
         return await directDebitService.doRefundProcess(header, refundRequestDto, isProduction);
     }

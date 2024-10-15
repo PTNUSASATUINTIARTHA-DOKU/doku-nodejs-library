@@ -26,6 +26,14 @@ class UpdateVaDto {
         this.virtualAccountTrxType = virtualAccountTrxType; 
         this.expiredDate = expiredDate;
     }
+    validateSimulator(){
+        if (this.trxId.startsWith("1115")) {
+            return {
+                "responseCode": "2002800",
+                "responseMessage": "success"
+            };
+        }
+    }
     validateUpdateVaRequestDto(){
         const commonSchema = {
             partnerServiceId: Joi.string().length(8).pattern(/^\s{0,7}\d{1,8}$/).required(),

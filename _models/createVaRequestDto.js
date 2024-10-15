@@ -69,7 +69,7 @@ class CreateVARequestDto {
         }
     }
     validateSimulator(){
-        if(this.trxId.startsWith("1114")){
+        if(this.trxId.startsWith("1110") || this.trxId.startsWith("1114")){
             return {
                 "responseCode": "2002700",
                 "responseMessage": "Successful",
@@ -89,8 +89,17 @@ class CreateVARequestDto {
                     "expiredDate": "2024-02-02T15:02:29+07:00"
                 }
             };
-        }else
-        if (this.trxId.startsWith("111") && this.trxId[3] !== '4') {
+        }else if (this.trxId.startsWith("1111")) {
+            return {
+                "responseCode": "4042512",
+                "responseMessage": "Bill not found"
+            };
+        }else if (this.trxId.startsWith("1112")) {
+            return {
+                "responseCode": "4042513",
+                "responseMessage": "Invalid Amount"
+            };
+        }else if (this.trxId.startsWith("111") && this.trxId[3] !== '4') {
             return {
                 "responseCode": "4012701",
                 "responseMessage": "Access Token Invalid (B2B)"

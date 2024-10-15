@@ -1,6 +1,5 @@
 const CheckStatusResponsePaymentFlagReason = require('./checkStatusResponsePaymentFlagReasonDTO');
 const TotalAmount = require('./totalAmount');
-const CheckStatusResponseAdditionalInfo = require('./checkStatusResponseAdditionalInfoDTO');
 
 class CheckStatusVirtualAccountData {
   constructor({
@@ -12,8 +11,7 @@ class CheckStatusVirtualAccountData {
     paymentRequestId,
     virtualAccountNumber,
     paidAmount,
-    billAmount,
-    additionalInfo
+    billDetails
   }) {
     this.paymentFlagReason = new CheckStatusResponsePaymentFlagReason(paymentFlagReason);
     this.partnerServiceId = partnerServiceId;
@@ -23,8 +21,7 @@ class CheckStatusVirtualAccountData {
     this.paymentRequestId = paymentRequestId;
     this.virtualAccountNumber = virtualAccountNumber;
     this.paidAmount = new TotalAmount(paidAmount);
-    this.billAmount = new TotalAmount(billAmount);;
-    this.additionalInfo = new CheckStatusResponseAdditionalInfo(additionalInfo);
+    this.billDetails =billDetails;
   }
 }
 

@@ -1,6 +1,8 @@
 "use strict"
 
 const commonFunction = require("../_commons/commonFunction");
+const SignatureComponentDTO = require("../_models/signatureDTO");
+const { createSignatureRequest } = require("../_services/signatureService");
 const TokenService = require("../_services/tokenService");
 const vaService = require("../_services/vaService");
 
@@ -17,11 +19,18 @@ class TokenController{
             }
         }
     }
-    validateSignature(privateKey, clientId, request,publicKey){
+    validateSignature(clientId, request,dokuPublicKey){
         let timestamp = request.get('x-timestamp');
-        const signature = TokenService.generateSignature(privateKey, clientId, timestamp);
         let requestSignature = request.get('x-signature');
-        return TokenService.compareSignatures(requestSignature,signature,publicKey,clientId,timestamp)
+        return TokenService.compareSignatures(requestSignature,dokuPublicKey,clientId,timestamp)
+    }
+    validateSignatureV2(clientId, request,privateKey){
+        let timestamp = request.get('x-timestamp');
+        const signature = TokenService.generateSignatureV2(privateKey, clientId, timestamp,request);
+        let requestSignature = request.get('x-signature');
+        console.log(signature)
+        console.log(requestSignature)
+        return TokenService.compareSignaturesV2(requestSignature,signature)
        
     }
     validateSignatureSymmetric(request, tokenB2B,secretKey,endPointUrl){

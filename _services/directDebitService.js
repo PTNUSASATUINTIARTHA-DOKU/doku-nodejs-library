@@ -1,6 +1,7 @@
 "use strict"
 
 const { default: axios } = require("axios");
+const crypto = require('crypto');
 const Config = require("../_commons/config");
 const CardUnRegistUnbindResponseDto = require("../_models/cardUnregistUnbindResponseDTO");
 
@@ -42,7 +43,8 @@ module.exports = {
             "X-SIGNATURE": requestHeaderDto.xSignature,
             "Authorization":"Bearer " + requestHeaderDto.authorization,
             "X-EXTERNAL-ID": requestHeaderDto.xExternalId,
-            "X-IP-ADDRESS":requestHeaderDto.xIpAddres
+            "X-IP-ADDRESS":requestHeaderDto.xIpAddres,
+            "X-DEVICE-ID":requestHeaderDto.xDeviceId
         }
         return await new Promise((resolve, reject) => {
             axios({
@@ -56,7 +58,6 @@ module.exports = {
                 resolve(response);
             })
             .catch((err) => {
-                console.log(err.response.data)
                 reject(err);
             });
         });
@@ -71,6 +72,7 @@ module.exports = {
             "Authorization":"Bearer " + requestHeaderDto.authorization,
             "X-EXTERNAL-ID": requestHeaderDto.xExternalId,
             "X-IP-ADDRESS":requestHeaderDto.xIpAddres,
+            "X-DEVICE-ID":requestHeaderDto.deviceId,
             "X-CHANNEL-ID":requestHeaderDto.xChannelId
         }
         return await new Promise((resolve, reject) => {
@@ -155,9 +157,9 @@ module.exports = {
             "X-SIGNATURE": header.xSignature,
             "Authorization":"Bearer " + header.authorization,
             "X-EXTERNAL-ID": header.xExternalId,
-            "X-CHANNEL-ID":header.xChannelId,
-            "Authorization":header.xAuthorization
+            "Content-Type": "application/json"
         }
+        console.log(headerObj)
         return await new Promise((resolve, reject) => {
             axios({
                 method: 'post',
@@ -201,7 +203,7 @@ module.exports = {
         });
     },
     async doRefundProcess(header, refundRequestDto, isProduction){
-        const base_url_api = Config.getBaseUrl(isProduction) + Config.DIRECT_DEBIT_CARD_BINDING_URL;
+        const base_url_api = Config.getBaseUrl(isProduction) + Config.DIRECT_DEBIT_REFUND_URL;
         let headerObj= {
             "X-PARTNER-ID": header.xPartnerId,
             "X-TIMESTAMP": header.xTimestamp,
@@ -255,5 +257,33 @@ module.exports = {
                 reject(err);
             });
         });
+    },
+    encryptCbc(input, secretKey) {
+        try {
+            secretKey = this.getSecretKey(secretKey);
+            const iv = this.generateIv();
+            const AES = 'aes-128-cbc';
+            const cipher = crypto.createCipheriv(AES, Buffer.from(secretKey, 'utf-8'), iv);
+            let cipherText = cipher.update(input, 'utf-8', 'base64');
+            cipherText += cipher.final('base64');
+            const ivString = iv.toString('base64');
+            return `${cipherText}|${ivString}`;
+        } catch (error) {
+            console.error('Encryption error:', error);
+            throw new Error('Encryption failed');
+        }
+    },
+    getSecretKey(secretKey) {
+        if (secretKey.length > 16) {
+            return secretKey.substring(0, 16);
+        } else if (secretKey.length < 16) {
+            return secretKey.padEnd(16, '-');
+        } else {
+            return secretKey;
+        }
+    },
+    generateIv() {
+        const iv = crypto.randomBytes(16); // Membuat IV acak
+        return iv;
     }
 }

@@ -1,5 +1,6 @@
 "use strict"
 
+const { validateHeader } = require("../_commons/validateHeader");
 const DirectDebitController = require("../_controllers/directDebitController");
 const NotificationController = require("../_controllers/notificationController");
 const TokenController = require("../_controllers/tokenController");
@@ -16,14 +17,16 @@ class Snap{
     tokenGeneratedTimestamp='';
     tokenB2b2cGeneratedTimestamp='';
     publicKey = ''
+    dokuPublicKey = ''
     issuer = '';
     secretKey = '';
     
-    constructor(options={isProduction:false,privateKey:'',clientID:'',publicKey:'',issuer:'', secretKey:''}){
+    constructor(options={isProduction:false,privateKey:'',clientID:'',publicKey:'',dokuPublicKey:'',issuer:'', secretKey:''}){
         this.isProduction = options.isProduction;
         this.privateKey = options.privateKey;
         this.clientId = options.clientID;
         this.publicKey = options.publicKey;
+        this.dokuPublicKey = options.dokuPublicKey
         this.issuer = options.issuer;
         this.secretKey = options.secretKey;
         // this.getTokenB2B() 
@@ -99,7 +102,7 @@ class Snap{
     }
     validateSignature(request){
         let tokenController = new TokenController();
-        return tokenController.validateSignature(this.privateKey, this.clientId, request,this.publicKey);
+        return tokenController.validateSignature(this.clientId, request,this.dokuPublicKey);
     }
     validateSymmetricSignature(request){
         let endPointUrl = request.route.path;
@@ -115,7 +118,7 @@ class Snap{
         }
     }
     validateSignatureAndGenerateToken(request){
-        const isSignatureValid = this.validateSignature(request,this.publicKey)
+        const isSignatureValid = this.validateSignature(request)
         return this.generateTokenB2B(isSignatureValid)
     }
     validateTokenB2B(requestTokenB2B){
@@ -140,6 +143,10 @@ class Snap{
     }
     async updateVa(updateVaRequestDto){
         updateVaRequestDto.validateUpdateVaRequestDto()	
+        const simulatorResponse = updateVaRequestDto.validateSimulator();
+        if (simulatorResponse) {
+            return simulatorResponse;
+        }
         let tokenController = new TokenController();
         let isTokenInvalid = tokenController.isTokenInvalid(this.tokenB2B, this.tokenExpiresIn, this.tokenGeneratedTimestamp);
         if(isTokenInvalid){
@@ -160,24 +167,33 @@ class Snap{
     }
     async deletePaymentCode(deleteVaRequestDto){
         deleteVaRequestDto.validateDeleteVaRequest();
+        const simulatorResponse = deleteVaRequestDto.validateSimulator();
+        if (simulatorResponse) {
+            return simulatorResponse;
+        }
         let tokenController = new TokenController();
         let isTokenInvalid = tokenController.isTokenInvalid(this.tokenB2B, this.tokenExpiresIn, this.tokenGeneratedTimestamp)
         if(isTokenInvalid){
             await this.getTokenB2B();
         }
         let vaController = new VaController();
-        let doDeletePaymentCode = await vaController.doDeletePaymentCode(deleteVaRequestDto, this.privateKey, this.clientId, this.tokenB2B,this.isProduction);
+        let doDeletePaymentCode = await vaController.doDeletePaymentCode(deleteVaRequestDto, this.privateKey, this.clientId, this.tokenB2B,this.secretKey,this.isProduction);
         return doDeletePaymentCode;
     }
     async checkStatusVa(checkVARequestDTO){
         checkVARequestDTO.validateCheckStatusVaRequestDto()
+        const simulatorResponse = checkVARequestDTO.validateSimulator();
+        console.log(simulatorResponse)
+        if (simulatorResponse) {
+            return simulatorResponse;
+        }
         let tokenController = new TokenController();
         let isTokenInvalid = tokenController.isTokenInvalid(this.tokenB2B, this.tokenExpiresIn, this.tokenGeneratedTimestamp)
         if(isTokenInvalid){
             await this.getTokenB2B();
         }
         let vaController = new VaController();
-        let checkStatus = await vaController.doCheckStatusVa(checkVARequestDTO,this.privateKey,  this.clientId, this.tokenB2B,this.isProduction);
+        let checkStatus = await vaController.doCheckStatusVa(checkVARequestDTO,this.privateKey,  this.clientId, this.tokenB2B, this.secretKey,this.isProduction);
         return checkStatus;
     }
    
@@ -194,6 +210,7 @@ class Snap{
         return vaController.notifyRequestMapping(header,body)
     }
     async doAccountUnbinding(AccountUnbindingRequestDto,ipAddress){
+        validateHeader({ipAddress,channel,type:"ACCOUNT_UNBINDING"})
         AccountUnbindingRequestDto.validateAccountUnbindingRequestDto();
         let tokenController = new TokenController();
         let isTokenInvalid = tokenController.isTokenInvalid(this.tokenB2B, this.tokenExpiresIn, this.tokenGeneratedTimestamp);
@@ -205,8 +222,10 @@ class Snap{
         let AccountUnbindingResponseDto = await directDebitController.doAccountUnbinding(AccountUnbindingRequestDto, this.privateKey, this.clientId, this.tokenB2B, ipAddress, this.secretKey, this.isProduction);
         return AccountUnbindingResponseDto
     }
-    async doAccountBinding(accountBindingRequestDto,ipAddress){
-        // accountBindingRequestDto.validateAccountBindingRequestDto();
+    async doAccountBinding(accountBindingRequestDto,ipAddress,deviceId){
+        let channel = accountBindingRequestDto.additionalInfo.channel;
+        validateHeader({ipAddress,deviceId,channel,type:"ACCOUNT_BINDING"})
+        accountBindingRequestDto.validateAccountBindingRequestDto();
         let tokenController = new TokenController();
         let isTokenInvalid = tokenController.isTokenInvalid(this.tokenB2B, this.tokenExpiresIn, this.tokenGeneratedTimestamp);
         if(isTokenInvalid){
@@ -214,10 +233,12 @@ class Snap{
         }
         
         let directDebitController = new DirectDebitController()
-        let AccountBindingResponseDto = await directDebitController.doAccountBinding(accountBindingRequestDto, this.privateKey, this.clientId, this.tokenB2B, ipAddress, this.secretKey, this.isProduction);
+        let AccountBindingResponseDto = await directDebitController.doAccountBinding(accountBindingRequestDto, this.privateKey, this.clientId, this.tokenB2B, ipAddress, deviceId,this.secretKey, this.isProduction);
         return AccountBindingResponseDto
     }
-    async doPaymentJumpApp(paymentJumpAppRequestDto, ipAddress) {
+    async doPaymentJumpApp(paymentJumpAppRequestDto, ipAddress,deviceId) {
+        let channel = accountBindingRequestDto.additionalInfo.channel;
+        validateHeader({ipAddress,deviceId,channel,type:"PAYMENT"})
         paymentJumpAppRequestDto.validate();
     
         let tokenController = new TokenController();
@@ -227,10 +248,12 @@ class Snap{
         }
         
         let directDebitController = new DirectDebitController()
-        let PaymentJumpAppResponseDto = await directDebitController.doPaymentJumpApp(paymentJumpAppRequestDto, this.privateKey, this.clientId, this.tokenB2B,ipAddress, this.secretKey, this.isProduction);
+        let PaymentJumpAppResponseDto = await directDebitController.doPaymentJumpApp(paymentJumpAppRequestDto, this.privateKey, this.clientId, this.tokenB2B,ipAddress,deviceId, this.secretKey, this.isProduction);
         return PaymentJumpAppResponseDto
     }
     async doBalanceInquiry(balanceInquiryRequestDto, authCode,ipAddress)  {
+        let channel = accountBindingRequestDto.additionalInfo.channel;
+        validateHeader({ipAddress,channel,type:"CHECK_BALANCE"})
         balanceInquiryRequestDto.validateBalanceInquiryRequestDto();
         
         let tokenController = new TokenController();
@@ -251,7 +274,9 @@ class Snap{
     
         return balanceInquiryResponseDto;
     }
-   async doPayment(paymentRequestDto, authCode,deviceId) {
+   async doPayment(paymentRequestDto, authCode,ipAddress) {
+        let channel = accountBindingRequestDto.additionalInfo.channel;
+        validateHeader({ipAddress,channel,type:"PAYMENT"})
         paymentRequestDto.validatePaymentRequestDto();
     
         let tokenController = new TokenController();
@@ -269,11 +294,11 @@ class Snap{
         }
         
         let directDebitController = new DirectDebitController()
-        let paymentResponseDto =  await directDebitController.doPayment(paymentRequestDto, this.privateKey, this.clientId, this.tokenB2B, this.tokenB2b2c, this.secretKey, this.isProduction,deviceId)
+        let paymentResponseDto =  await directDebitController.doPayment(paymentRequestDto, this.privateKey, this.clientId, this.tokenB2B, this.tokenB2b2c, this.secretKey, this.isProduction,ipAddress)
     
         return paymentResponseDto;
     }
-    async doRegistrationCardBind(cardRegistrationRequestDto, channelId) {
+    async doRegistrationCardBind(cardRegistrationRequestDto) {
         cardRegistrationRequestDto.validateCardRegistrationRequestDto();
     
         let tokenController = new TokenController();
@@ -282,7 +307,7 @@ class Snap{
             await this.getTokenB2B();
         }
         let directDebitController = new DirectDebitController()
-        let cardBindResponseDto = directDebitController.doRegistrationCardBind(cardRegistrationRequestDto,channelId, this.clientId,this.tokenB2B, this.secretKey, this.isProduction)
+        let cardBindResponseDto = directDebitController.doRegistrationCardBind(cardRegistrationRequestDto, this.clientId,this.tokenB2B, this.secretKey, this.isProduction)
     
         return cardBindResponseDto
     }
@@ -299,7 +324,9 @@ class Snap{
     
         return cardBindResponseDto
     }
-    async doRefund(refundRequestDto, authCode)  {
+    async doRefund(refundRequestDto, authCode,ipAddress,deviceId)  {
+        let channel = accountBindingRequestDto.additionalInfo.channel;
+        validateHeader({ipAddress,deviceId,channel,type:"REFUND"})
         refundRequestDto.validateRefundRequestDto();
     
         // check token b2b
@@ -314,7 +341,7 @@ class Snap{
             await this.getTokenB2B2c(authCode)
         }
         let directDebitController = new DirectDebitController()
-        let refundResponseDto = directDebitController.doRefund(refundRequestDto,this.privateKey, this.clientId,this.tokenB2B, this.tokenB2b2c,this.secretKey,this.isProduction)
+        let refundResponseDto = directDebitController.doRefund(refundRequestDto,this.privateKey, this.clientId,this.tokenB2B, this.tokenB2b2c,this.secretKey,this.isProduction,ipAddress,deviceId)
         return refundResponseDto;
     }
     async doCheckStatus(checkStatusRequestDto){

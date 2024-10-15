@@ -9,7 +9,14 @@ class CheckStatusVARequestDto {
     this.paymentRequestId = paymentRequestId;
     this.additionalInfo = additionalInfo;
   }
-
+  validateSimulator(){
+    if (this.virtualAccountNo.startsWith("1113") || this.virtualAccountNo.startsWith("1116")) {
+        return {
+            "responseCode": "2002600",
+            "responseMessage": "success"
+        };
+    }
+}
   validateCheckStatusVaRequestDto() {
     const schema = Joi.object({
       partnerServiceId:  Joi.string().length(8).pattern(/^\s{0,7}\d{1,8}$/).required(),

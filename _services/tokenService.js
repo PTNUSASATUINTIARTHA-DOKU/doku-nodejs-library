@@ -30,6 +30,45 @@ module.exports = {
     generateSignature(privateKey, clientID, xTimestamp) {
         try {
             const signatureElements = `${clientID}|${xTimestamp}`;
+            console.log("string to sign: "+signatureElements)
+            const sign = crypto.createSign('RSA-SHA256');
+            sign.update(signatureElements, 'utf8');
+            sign.end();
+            const signatureResult = sign.sign(privateKey, 'base64');
+            console.log("signature get token: "+signatureResult)
+            return signatureResult;
+        } catch (error) {
+            throw error;
+        }
+    },
+    minifyString(str) {
+        return str
+            .replace(/\s+/g, '')  // Menghapus semua spasi, tab, dan baris baru
+            .replace(/(\r\n|\n|\r)/gm, '');  // Menghapus karakter new line
+    },
+    processRequestBody(requestBody) {
+        try {
+            // Minify request body (misalnya JSON atau string)
+            const minifiedBody = this.minifyString(JSON.stringify(requestBody));
+    
+            // Hitung hash SHA-256
+            const hash = crypto.createHash('sha256')
+                               .update(minifiedBody)
+                               .digest('hex');
+    
+            // Convert ke lowercase
+            return hash.toLowerCase();
+        } catch (error) {
+            console.error("Error:", error);
+            throw error;
+        }
+    },
+    generateSignatureV2(privateKey, clientID, xTimestamp,request) {
+        try {
+            let httpMethod = "POST"
+            let endPointUrl = request.path;
+            let signatureElements = httpMethod +":"+ endPointUrl +":"+this.processRequestBody(request.body) + ":" + xTimestamp
+            // const signatureElements = `${clientID}|${xTimestamp}`;
             const sign = crypto.createSign('RSA-SHA256');
             sign.update(signatureElements);
             sign.end();
@@ -50,19 +89,33 @@ module.exports = {
     
         return signature.toString('base64');
     },
-    compareSignatures(requestSignature,newSignature,publicKey,clientID,xTimestamp){
+    compareSignatures(requestSignature,dokuPublicKey,clientID,xTimestamp){
+       
         const data = Buffer.from(`${clientID}|${xTimestamp}`);
         try {
             const isVerified = crypto.verify(
                 'RSA-SHA256',
                 Buffer.from(data),
                 {
-                    key: publicKey,
+                    key: dokuPublicKey,
                     padding: crypto.constants.RSA_PKCS1_PADDING,
                 },
-                Buffer.from(newSignature, 'base64')
+                Buffer.from(requestSignature, 'base64')
             );
             return isVerified
+        } catch (error) {
+            console.error('Error during verification:', error);
+            return false
+            
+        }
+    },
+    compareSignaturesV2(requestSignature,newSignature){
+        try {
+            if(requestSignature.toLowerCase() == newSignature.toLowerCase()){
+                return true
+            }else{
+                return false
+            }
         } catch (error) {
             console.error('Error during verification:', error);
         }
@@ -152,7 +205,8 @@ module.exports = {
             const claims = jwt.verify(requestTokenB2B, publicKey);
             return claims
         } catch (err) {
-            throw new Error('Invalid token', err);
+            console.log(err.message)
+            return false
         }
     },
     minifyJSON(jsonString) {
@@ -187,12 +241,15 @@ module.exports = {
     },
     generateSymmetricSignature(httpMethod,endPointUrl,tokenB2B,requestBody,timestamp,secretKey) {
         const body = requestBody;
-        var minifyJsonObject = JSON.stringify(body)
-        const bodySha256 = CryptoJS.enc.Base64.stringify(CryptoJS.SHA256(minifyJsonObject)).toLowerCase();
-        console.log('bodySha256: ' + bodySha256);
-        const data = `${httpMethod}:${endPointUrl}:${tokenB2B}:${bodySha256}:${timestamp}`;
+        console.log(body)
+        var minifyJsonObject = JSON.stringify(body);
+        console.log("stringify "+minifyJsonObject)
+        const sha256Hash = crypto.createHash('sha256').update(minifyJsonObject).digest('hex');
+        const hexEncodedLowerCase = sha256Hash.toLowerCase();
+        const data = `${httpMethod}:${endPointUrl}:${tokenB2B}:${hexEncodedLowerCase}:${timestamp}`;
         console.log('stringtosign: ' + data);
         var signatureHash = this.generateExpectedSignature(data,secretKey);
+        console.log('signature: ' + signatureHash);
         return signatureHash
     },
     createTokenB2b2cRequestDto(authCode){

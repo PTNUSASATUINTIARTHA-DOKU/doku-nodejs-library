@@ -36,6 +36,7 @@ module.exports = {
     },
     async createVa(requestHeaderDto, createVaRequestDto,isProduction) {
         const base_url_api = config.getBaseUrl(isProduction) + config.CREATE_VA;
+        console.log(base_url_api)
         let header= {
             "X-PARTNER-ID": requestHeaderDto.xPartnerId,
             "X-TIMESTAMP": requestHeaderDto.xTimestamp,
@@ -135,8 +136,8 @@ module.exports = {
                 data:checkVARequestDTO
             })
             .then((res) => {
+                console.log(res.data)
                 let response = new CheckStatusVaResponseDTO(res.data);
-             
                 resolve(response);
             })
             .catch((err) => {

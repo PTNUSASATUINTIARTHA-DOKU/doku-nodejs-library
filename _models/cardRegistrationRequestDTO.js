@@ -7,8 +7,8 @@ class CardRegistrationRequestDTO {
     this.phoneNo = phoneNo;
     this.additionalInfo = additionalInfo; // instance of AdditionalInfoDTO
   }
-
-  validateCardRegistrationRequestDTO() {
+  
+  validateCardRegistrationRequestDto() {
     const additionalInfoSchema = Joi.object({
       channel: Joi.string()
         .valid('DIRECT_DEBIT_BRI_SNAP')
@@ -41,10 +41,17 @@ class CardRegistrationRequestDTO {
     });
 
     const schema = Joi.object({
-      cardData: Joi.string()
-        .required()
-        .regex(/^[a-zA-Z0-9+/=]+(?:\|[a-zA-Z0-9+/=]+)?$/)
-        .message('cardData must be a valid encrypted string'),
+      cardData: Joi.object({
+        bankCardNo: Joi.string()
+            .max(20) // Panjang nomor kartu bank
+            .required(),
+        bankCardType: Joi.string()
+            .required(),
+        expiryDate: Joi.string()
+            .length(4) // Format MMYY
+            .pattern(/^(0[1-9]|1[0-2])[0-9]{2}$/) // Validasi format MMYY
+            .required()
+    }).required(),
       custIdMerchant: Joi.string()
         .alphanum()
         .max(64)
@@ -57,7 +64,10 @@ class CardRegistrationRequestDTO {
       additionalInfo: additionalInfoSchema.required(),
     });
 
-    return schema.validate(this);
+    const { error } = schema.validate(this, { abortEarly: false });
+    if (error) {
+        throw new Error(`Validation failed: ${error.details.map(x => x.message).join(', ')}`);
+    }
   }
 
   toObject() {

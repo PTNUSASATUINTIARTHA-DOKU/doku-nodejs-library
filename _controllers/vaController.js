@@ -11,7 +11,9 @@ class VaController{
 
     async createVa(createVaRequestDto,privateKey, clientId, tokenB2B, isProduction,secretKey){
         let timestamp = tokenService.generateTimestamp();
-        let signature = tokenService.generateSignature(privateKey, clientId, timestamp)
+        let endPointUrl = Config.CREATE_VA;
+        let httpMethod = "POST"
+        let signature = tokenService.generateSymmetricSignature(httpMethod,endPointUrl,tokenB2B,createVaRequestDto,timestamp,secretKey);
         let externalId = commonFunction.generateExternalId();
         let header = vaService.createVaRequesHeaderDto(createVaRequestDto.additionalInfo.channel, clientId, tokenB2B, timestamp, externalId, signature);
         return VaService.createVa(header, createVaRequestDto, isProduction)
@@ -29,24 +31,29 @@ class VaController{
     }
    async doUpdateVa(updateVaRequestDto,clientId, tokenB2B, secretKey,isProduction){
         let timestamp = tokenService.generateTimestamp();
-        let endPointUrl = Config.CREATE_VA;
-        let httpMethod = "POST"
+        let endPointUrl = Config.UPDATE_VA;
+        let httpMethod = "PUT"
         let signature = tokenService.generateSymmetricSignature(httpMethod,endPointUrl,tokenB2B,updateVaRequestDto,timestamp,secretKey);
         let externalId =commonFunction.generateExternalId();
         let header = VaService.createVaRequesHeaderDto(updateVaRequestDto.additionalInfo.channel, clientId,tokenB2B,timestamp,externalId,signature);
         return await vaService.doUpdateVa(header,updateVaRequestDto,isProduction)
     }
-    async doDeletePaymentCode(deleteVaRequestDto, privateKey, clientId, tokenB2B,isProduction){
+    async doDeletePaymentCode(deleteVaRequestDto, privateKey, clientId, tokenB2B, secretKey,isProduction){
 
         let timestamp = tokenService.generateTimestamp();
-        let signature = tokenService.generateSignature(privateKey, clientId, timestamp)
+        let endPointUrl = Config.DELETE_VA;
+        let httpMethod = "DELETE"
+        let signature = tokenService.generateSymmetricSignature(httpMethod,endPointUrl,tokenB2B,deleteVaRequestDto,timestamp,secretKey);
         let externalId = commonFunction.generateExternalId();
         let header = vaService.createVaRequesHeaderDto(deleteVaRequestDto.additionalInfo.channel, clientId, tokenB2B, timestamp, externalId, signature)
         return vaService.doDeletePaymentCode(header, deleteVaRequestDto,isProduction)
     }
-    async doCheckStatusVa(checkVARequestDTO, privateKey,clientId, tokenB2B,isProduction){
+    async doCheckStatusVa(checkVARequestDTO, privateKey,clientId, tokenB2B,secretKey,isProduction){
         let timestamp = tokenService.generateTimestamp();
-        let signature = tokenService.generateSignature(privateKey, clientId, timestamp)
+        let endPointUrl = Config.CHECK_STATUS_VA;
+        let httpMethod = "POST"
+        let signature = tokenService.generateSymmetricSignature(httpMethod,endPointUrl,tokenB2B,checkVARequestDTO,timestamp,secretKey);
+        console.log("signature :"+signature)
         let externalId = commonFunction.generateExternalId();
         let header = vaService.createVaRequesHeaderDto(checkVARequestDTO.additionalInfo?.channel, clientId, tokenB2B, timestamp, externalId, signature)
         return vaService.doCheckStatusVa(header, checkVARequestDTO,isProduction)
