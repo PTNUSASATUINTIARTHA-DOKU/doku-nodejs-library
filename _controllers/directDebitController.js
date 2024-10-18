@@ -38,7 +38,7 @@ class DirectDebitController {
         let signature = tokenService.generateSymmetricSignature(httpMethod, endPointUrl, tokenB2B, paymentJumpAppRequestDto, timestamp, secretKey);
         let externalId = commonFunction.generateExternalId();
         let header = requestHeader.generateRequestHeader({
-            timestamp, signature, clientId, externalId, ipAddress, channelId: "H2H", tokenB2B, endPointUrl, requestDto: paymentJumpAppRequestDto,deviceId
+            timestamp, signature, clientId, externalId, ipAddress, channelId: "DH", tokenB2B, endPointUrl, requestDto: paymentJumpAppRequestDto,deviceId
         });
         return await directDebitService.doPaymentJumpAppProcess(header, paymentJumpAppRequestDto, isProduction);
     }

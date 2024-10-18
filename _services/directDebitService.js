@@ -158,7 +158,7 @@ module.exports = {
             "Authorization":"Bearer " + header.authorization,
             "X-EXTERNAL-ID": header.xExternalId,
             "Content-Type": "application/json",
-            "CHANNEL-ID":"H2H"
+            "CHANNEL-ID":"DH"
         }
         return await new Promise((resolve, reject) => {
             axios({
