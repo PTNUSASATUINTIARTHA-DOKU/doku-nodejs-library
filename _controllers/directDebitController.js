@@ -38,7 +38,7 @@ class DirectDebitController {
         let signature = tokenService.generateSymmetricSignature(httpMethod, endPointUrl, tokenB2B, paymentJumpAppRequestDto, timestamp, secretKey);
         let externalId = commonFunction.generateExternalId();
         let header = requestHeader.generateRequestHeader({
-            timestamp, signature, clientId, externalId, ipAddress, channelId: "H2H", tokenB2B, endPointUrl, requestDto: paymentJumpAppRequestDto,deviceId
+            timestamp, signature, clientId, externalId, ipAddress, channelId: "DH", tokenB2B, endPointUrl, requestDto: paymentJumpAppRequestDto,deviceId
         });
         return await directDebitService.doPaymentJumpAppProcess(header, paymentJumpAppRequestDto, isProduction);
     }
@@ -82,7 +82,6 @@ class DirectDebitController {
         return await directDebitService.doRegistrationCardBindProcess(header, cardRegistrationRequestDto, isProduction);
     }
     async doUnRegistCardUnBind(cardUnRegistUnbindRequestDTO, clientId,tokenB2B, secretKey, isProduction){
-        console.log( cardUnRegistUnbindRequestDTO.cardData)
         let timestamp = tokenService.generateTimestamp();
         let endPointUrl = Config.DIRECT_DEBIT_CARD_UNBINDING_URL;
         let httpMethod = "POST";
