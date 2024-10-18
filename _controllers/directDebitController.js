@@ -82,7 +82,6 @@ class DirectDebitController {
         return await directDebitService.doRegistrationCardBindProcess(header, cardRegistrationRequestDto, isProduction);
     }
     async doUnRegistCardUnBind(cardUnRegistUnbindRequestDTO, clientId,tokenB2B, secretKey, isProduction){
-        console.log( cardUnRegistUnbindRequestDTO.cardData)
         let timestamp = tokenService.generateTimestamp();
         let endPointUrl = Config.DIRECT_DEBIT_CARD_UNBINDING_URL;
         let httpMethod = "POST";

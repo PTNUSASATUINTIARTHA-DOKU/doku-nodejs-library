@@ -157,9 +157,9 @@ module.exports = {
             "X-SIGNATURE": header.xSignature,
             "Authorization":"Bearer " + header.authorization,
             "X-EXTERNAL-ID": header.xExternalId,
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "CHANNEL-ID":"H2H"
         }
-        console.log(headerObj)
         return await new Promise((resolve, reject) => {
             axios({
                 method: 'post',
@@ -169,6 +169,7 @@ module.exports = {
             })
             .then((res) => {
                 let response = res.data;
+                console.log(response)
                 resolve(response);
             })
             .catch((err) => {
