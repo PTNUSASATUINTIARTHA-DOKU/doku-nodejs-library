@@ -23,3 +23,4 @@ class TokenB2b2cResponseDto {
         };
     }
 }
+module.exports = TokenB2b2cResponseDto;

@@ -154,7 +154,6 @@ class CreateVARequestDto {
             };
         }
         else if (this.trxId.startsWith("115")) {
-            console.log("trxId dimulai dengan 115");
             return {
                 "responseCode": "4092700",
                 "responseMessage": "Conflict"

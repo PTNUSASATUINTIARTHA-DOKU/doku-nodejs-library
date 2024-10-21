@@ -11,6 +11,7 @@ const NotificationTokenHeaderDto = require('../_models/notificationTokenHeaderDT
 const crypto = require('crypto');
 const CryptoJS = require('crypto-js');
 const TokenB2BResponseDTO = require('../_models/tokenB2BResponseDTO');
+const TokenB2b2cRequestDto = require('../_models/tokenB2B2CRequestDTO');
 
 module.exports = {
     hexToBase64(hexString) {
@@ -30,12 +31,10 @@ module.exports = {
     generateSignature(privateKey, clientID, xTimestamp) {
         try {
             const signatureElements = `${clientID}|${xTimestamp}`;
-            console.log("string to sign: "+signatureElements)
             const sign = crypto.createSign('RSA-SHA256');
             sign.update(signatureElements, 'utf8');
             sign.end();
             const signatureResult = sign.sign(privateKey, 'base64');
-            console.log("signature get token: "+signatureResult)
             return signatureResult;
         } catch (error) {
             throw error;
@@ -84,8 +83,6 @@ module.exports = {
         sign.update(stringToSign);
         sign.end();
         const signature = sign.sign(privateKey);
-        console.log("AsymmetricXSignature: " + signature.toString('base64'));
-        console.log("raw stringToSign: " + stringToSign);
     
         return signature.toString('base64');
     },
@@ -205,7 +202,6 @@ module.exports = {
             const claims = jwt.verify(requestTokenB2B, publicKey);
             return claims
         } catch (err) {
-            console.log(err.message)
             return false
         }
     },
@@ -241,15 +237,11 @@ module.exports = {
     },
     generateSymmetricSignature(httpMethod,endPointUrl,tokenB2B,requestBody,timestamp,secretKey) {
         const body = requestBody;
-        console.log(body)
         var minifyJsonObject = JSON.stringify(body);
-        console.log("stringify "+minifyJsonObject)
         const sha256Hash = crypto.createHash('sha256').update(minifyJsonObject).digest('hex');
         const hexEncodedLowerCase = sha256Hash.toLowerCase();
         const data = `${httpMethod}:${endPointUrl}:${tokenB2B}:${hexEncodedLowerCase}:${timestamp}`;
-        console.log('stringtosign: ' + data);
         var signatureHash = this.generateExpectedSignature(data,secretKey);
-        console.log('signature: ' + signatureHash);
         return signatureHash
     },
     createTokenB2b2cRequestDto(authCode){
@@ -260,12 +252,13 @@ module.exports = {
     },
     async hitTokenB2b2cApi(tokenB2b2cRequestDto, timestamp, signature, clientId, isProduction){
         const base_url_api = config.getBaseUrl(isProduction) + config.ACCESS_TOKEN_B2B2C;
+        console.log(timestamp)
         let header = {
             "X-CLIENT-KEY": clientId,
             "X-TIMESTAMP": timestamp,
             "X-SIGNATURE": signature
         };
-       
+       console.log(tokenB2b2cRequestDto)
         return await new Promise((resolve, reject) => {
             axios({
                 method: 'post',

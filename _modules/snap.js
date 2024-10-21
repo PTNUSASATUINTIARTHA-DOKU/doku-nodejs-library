@@ -50,7 +50,7 @@ class Snap{
         try {
             let tokenController = new TokenController();
             const tokenB2B2CResponseDto = await tokenController.getTokenB2b2c(authCode,this.privateKey, this.clientId, this.isProduction);
-            if (!tokenB2B2CResponseDto.accessToken || !tokenB2B2CResponseDto.expiresIn) {
+            if (!tokenB2B2CResponseDto.accessToken) {
                 throw new Error('Invalid token response');
             }
             this.setTokenB2B2C(tokenB2B2CResponseDto);
@@ -183,7 +183,6 @@ class Snap{
     async checkStatusVa(checkVARequestDTO){
         checkVARequestDTO.validateCheckStatusVaRequestDto()
         const simulatorResponse = checkVARequestDTO.validateSimulator();
-        console.log(simulatorResponse)
         if (simulatorResponse) {
             return simulatorResponse;
         }
@@ -275,10 +274,10 @@ class Snap{
         return balanceInquiryResponseDto;
     }
    async doPayment(paymentRequestDto, authCode,ipAddress) {
-        let channel = accountBindingRequestDto.additionalInfo.channel;
+        let channel = paymentRequestDto.additionalInfo.channel;
         validateHeader({ipAddress,channel,type:"PAYMENT"})
         paymentRequestDto.validatePaymentRequestDto();
-    
+
         let tokenController = new TokenController();
         // check token b2b
         let isTokenInvalid = tokenController.isTokenInvalid(this.tokenB2B, this.tokenExpiresIn, this.tokenGeneratedTimestamp);
@@ -288,7 +287,7 @@ class Snap{
     
         // check token b2b2c
         var isTokenB2b2cInvalid = tokenController.isTokenInvalid(this.tokenB2b2c, this.tokenB2b2cExpiresIn, this.tokenB2b2cGeneratedTimestamp);
-    
+        console.log(authCode)
         if (isTokenB2b2cInvalid) {
             await this.getTokenB2B2c(authCode)
         }

@@ -50,7 +50,11 @@ class CardRegistrationRequestDTO {
         expiryDate: Joi.string()
             .length(4) // Format MMYY
             .pattern(/^(0[1-9]|1[0-2])[0-9]{2}$/) // Validasi format MMYY
-            .required()
+            .required(),
+        identificationNo:Joi.string().optional(),
+        identificationType:Joi.string().optional(),
+        email:Joi.string().optional()
+
     }).required(),
       custIdMerchant: Joi.string()
         .alphanum()

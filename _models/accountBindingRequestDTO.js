@@ -24,7 +24,6 @@ class AccountBindingRequestDto {
                 channelId:Joi.string()
             })
         })
-        console.log(this)
         const { error } = schema.validate(this, { abortEarly: false });
         if (error) {
             throw new Error(`Validation failed: ${error.details.map(x => x.message).join(', ')}`);

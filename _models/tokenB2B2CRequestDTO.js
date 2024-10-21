@@ -1,5 +1,5 @@
 class TokenB2b2cRequestDto {
-    constructor({ grantType, authCode, refreshToken, additionalInfo }) {
+    constructor(grantType, authCode, refreshToken, additionalInfo) {
         this.grantType = grantType;
         this.authCode = authCode;
         this.refreshToken = refreshToken;
@@ -15,3 +15,4 @@ class TokenB2b2cRequestDto {
         };
     }
 }
+module.exports = TokenB2b2cRequestDto;
