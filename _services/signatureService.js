@@ -11,7 +11,6 @@ function createSignatureRequest(componentDTO) {
 
     if (!methodWithoutBodies.includes(componentDTO.httpMethod)) {
         const digest = sha256Base64(JSON.stringify(componentDTO.messageBody));
-        console.log(`Digest output: ${digest}`);
         component += `\nDIGEST:${digest}`;
     }
 
@@ -22,7 +21,6 @@ function createSignatureRequest(componentDTO) {
 
 // Fungsi untuk membuat digest SHA256 dan mengonversi ke base64
 function sha256Base64(data) {
-    console.log(data)
     return crypto.createHash('sha256').update(data).digest('base64');
 }
 

@@ -2,6 +2,9 @@
 
 const { default: axios } = require("axios");
 const crypto = require('crypto');
+
+const AES = 'aes-128-cbc';
+const AES_CBC_PADDING = 'aes-128-cbc';
 const Config = require("../_commons/config");
 const CardUnRegistUnbindResponseDto = require("../_models/cardUnregistUnbindResponseDTO");
 
@@ -25,7 +28,6 @@ module.exports = {
                 data:accountUnbindingRequestDto
             })
             .then((res) => {
-                console.log(res.data)
                 let response = res.data;
                 resolve(response);
             })
@@ -168,8 +170,7 @@ module.exports = {
                 data:cardRegistrationRequestDto
             })
             .then((res) => {
-                let response = res.data;
-                console.log(response)
+                let response = res;
                 resolve(response);
             })
             .catch((err) => {
@@ -259,32 +260,67 @@ module.exports = {
             });
         });
     },
+    decryptCbc(encryptedData, secretKey) {
+        try {
+          secretKey = this.getSecretKey(secretKey);
+          
+          // Pisahkan ciphertext dan IV
+          const [cipherText, ivString] = encryptedData.split('|');
+          const iv = Buffer.from(ivString, 'base64');
+          
+          // Dekripsi
+          const decipher = crypto.createDecipheriv(AES_CBC_PADDING, Buffer.from(secretKey, 'utf8'), iv);
+          let decryptedText = decipher.update(cipherText, 'base64', 'utf8');
+          decryptedText += decipher.final('utf8');
+          
+          return decryptedText;
+        } catch (error) {
+          // throw error or handle it
+          console.error('Decryption error:', error);
+        }
+      },
     encryptCbc(input, secretKey) {
         try {
-            secretKey = this.getSecretKey(secretKey);
-            const iv = this.generateIv();
-            const AES = 'aes-128-cbc';
-            const cipher = crypto.createCipheriv(AES, Buffer.from(secretKey, 'utf-8'), iv);
-            let cipherText = cipher.update(input, 'utf-8', 'base64');
-            cipherText += cipher.final('base64');
-            const ivString = iv.toString('base64');
-            return `${cipherText}|${ivString}`;
+          secretKey = this.getSecretKey(secretKey);
+          const iv = this.generateIv();
+          const cipher = crypto.createCipheriv(AES_CBC_PADDING, Buffer.from(secretKey, 'utf8'), iv);
+          let cipherText = cipher.update(input, 'utf8', 'base64');
+          cipherText += cipher.final('base64');
+          const ivString = iv.toString('base64');
+          return `${cipherText}|${ivString}`;
         } catch (error) {
-            console.error('Encryption error:', error);
-            throw new Error('Encryption failed');
+          // throw error or handle it
+          console.error('Encryption error:', error);
         }
     },
+    encryptData(data, encryptionKey) {
+        // Hash key menjadi 32 byte (256 bit) menggunakan SHA-256
+        const hashedKey = crypto.createHash('sha256').update(encryptionKey).digest();
+      
+        // Mengubah objek menjadi string JSON
+        const dataString = JSON.stringify(data);
+      
+        // Membuat IV (Initialization Vector) 16 byte untuk CBC
+        const iv = crypto.randomBytes(16);
+      
+        // Fungsi untuk mengenkripsi teks
+        const cipher = crypto.createCipheriv('aes-256-cbc', hashedKey, iv);
+        let encrypted = cipher.update(dataString, 'utf-8', 'hex');
+        encrypted += cipher.final('hex');
+      
+        // Hasil yang akan dikembalikan, termasuk nilai terenkripsi dan IV
+        return encrypted
+      },
     getSecretKey(secretKey) {
         if (secretKey.length > 16) {
-            return secretKey.substring(0, 16);
+          return secretKey.substring(0, 16);
         } else if (secretKey.length < 16) {
-            return secretKey.padEnd(16, '-');
+          return secretKey.padEnd(16, '-');
         } else {
-            return secretKey;
+          return secretKey;
         }
     },
     generateIv() {
-        const iv = crypto.randomBytes(16); // Membuat IV acak
-        return iv;
+        return crypto.randomBytes(16); // 16-byte IV
     }
 }

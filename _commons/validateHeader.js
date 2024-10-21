@@ -13,22 +13,27 @@ function validateHeader({ ipAddress, deviceId, channel, type }) {
         (channel === "EMONEY_DANA_SNAP" && (type === "PAYMENT" || type === "REFUND")) ||
         (channel === "EMONEY_SHOPEE_PAY_SNAP" && (type === "PAYMENT" || type === "REFUND"))
     );
-
     if (needsDeviceId) {
         schema = Joi.object({
             ...commonSchema,
             deviceId: commonSchema.deviceId.required()  
         });
+        const { error } = schema.validate({ ipAddress, deviceId });
+        if (error) {
+            throw new Error(`Validation error: ${error.details.map(x => x.message).join(', ')}`);
+        }
     } else {
         schema = Joi.object({
             ipAddress: commonSchema.ipAddress.required() 
         });
+        const { error } = schema.validate({ ipAddress });
+        if (error) {
+            throw new Error(`Validation error: ${error.details.map(x => x.message).join(', ')}`);
+        }
     }
 
-    const { error } = schema.validate({ ipAddress, deviceId });
-    if (error) {
-        throw new Error(`Validation error: ${error.details.map(x => x.message).join(', ')}`);
-    }
+   
+   
 }
 
 module.exports = {
