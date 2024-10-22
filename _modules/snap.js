@@ -324,7 +324,7 @@ class Snap{
         return cardBindResponseDto
     }
     async doRefund(refundRequestDto, authCode,ipAddress,deviceId)  {
-        let channel = accountBindingRequestDto.additionalInfo.channel;
+        let channel = refundRequestDto.additionalInfo.channel;
         validateHeader({ipAddress,deviceId,channel,type:"REFUND"})
         refundRequestDto.validateRefundRequestDto();
     

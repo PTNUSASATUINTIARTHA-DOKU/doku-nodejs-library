@@ -39,7 +39,8 @@ class RefundRequestDto {
         .max(255)
         .optional(),
       partnerRefundNo: Joi.string()
-        .max(12)
+        .min(32)
+        .max(64)
         .required(),
     });
 
