@@ -1,3 +1,5 @@
+const Joi = require("joi");
+
 class CheckStatusDirectDebitDTO {
     constructor(
       originalPartnerReferenceNo,

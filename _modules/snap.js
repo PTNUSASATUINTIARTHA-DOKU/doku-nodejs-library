@@ -210,6 +210,7 @@ class Snap{
         return vaController.notifyRequestMapping(header,body)
     }
     async doAccountUnbinding(AccountUnbindingRequestDto,ipAddress){
+        let channel = AccountUnbindingRequestDto.additionalInfo.channel;
         validateHeader({ipAddress,channel,type:"ACCOUNT_UNBINDING"})
         AccountUnbindingRequestDto.validateAccountUnbindingRequestDto();
         let tokenController = new TokenController();
@@ -237,7 +238,7 @@ class Snap{
         return AccountBindingResponseDto
     }
     async doPaymentJumpApp(paymentJumpAppRequestDto, ipAddress,deviceId) {
-        let channel = accountBindingRequestDto.additionalInfo.channel;
+        let channel = paymentJumpAppRequestDto.additionalInfo.channel;
         validateHeader({ipAddress,deviceId,channel,type:"PAYMENT"})
         paymentJumpAppRequestDto.validate();
     
@@ -252,7 +253,7 @@ class Snap{
         return PaymentJumpAppResponseDto
     }
     async doBalanceInquiry(balanceInquiryRequestDto, authCode,ipAddress)  {
-        let channel = accountBindingRequestDto.additionalInfo.channel;
+        let channel = balanceInquiryRequestDto.additionalInfo.channel;
         validateHeader({ipAddress,channel,type:"CHECK_BALANCE"})
         balanceInquiryRequestDto.validateBalanceInquiryRequestDto();
         
@@ -275,7 +276,7 @@ class Snap{
         return balanceInquiryResponseDto;
     }
    async doPayment(paymentRequestDto, authCode,ipAddress) {
-        let channel = accountBindingRequestDto.additionalInfo.channel;
+        let channel = paymentRequestDto.additionalInfo.channel;
         validateHeader({ipAddress,channel,type:"PAYMENT"})
         paymentRequestDto.validatePaymentRequestDto();
     
@@ -325,10 +326,10 @@ class Snap{
         return cardBindResponseDto
     }
     async doRefund(refundRequestDto, authCode,ipAddress,deviceId)  {
-        let channel = accountBindingRequestDto.additionalInfo.channel;
+        let channel = refundRequestDto.additionalInfo.channel;
         validateHeader({ipAddress,deviceId,channel,type:"REFUND"})
         refundRequestDto.validateRefundRequestDto();
-    
+        let tokenController = new TokenController();
         // check token b2b
         let isTokenInvalid = tokenController.isTokenInvalid(this.tokenB2B, this.tokenExpiresIn, this.tokenGeneratedTimestamp);
         if(isTokenInvalid){
@@ -346,6 +347,7 @@ class Snap{
     }
     async doCheckStatus(checkStatusRequestDto){
         checkStatusRequestDto.validateCheckStatusRequestDto();
+        let tokenController = new TokenController();
         let isTokenInvalid = tokenController.isTokenInvalid(this.tokenB2B, this.tokenExpiresIn, this.tokenGeneratedTimestamp);
         if(isTokenInvalid){
             await this.getTokenB2B();

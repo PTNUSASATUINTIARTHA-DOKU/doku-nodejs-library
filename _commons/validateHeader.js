@@ -25,7 +25,12 @@ function validateHeader({ ipAddress, deviceId, channel, type }) {
         });
     }
 
-    const { error } = schema.validate({ ipAddress, deviceId });
+    const validationData = { ipAddress };
+    if (needsDeviceId) {
+        validationData.deviceId = deviceId;
+    }
+
+    const { error } = schema.validate(validationData);
     if (error) {
         throw new Error(`Validation error: ${error.details.map(x => x.message).join(', ')}`);
     }

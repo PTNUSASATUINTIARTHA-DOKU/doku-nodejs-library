@@ -1,12 +1,13 @@
 const Joi = require('joi');
 
 class RefundRequestDto {
-  constructor(originalPartnerReferenceNo, refundAmount, partnerRefundNo, originalExternalId, reason) {
+  constructor(originalPartnerReferenceNo, refundAmount, partnerRefundNo, originalExternalId, reason, additionalInfo) {
     this.originalPartnerReferenceNo = originalPartnerReferenceNo;
     this.originalExternalId = originalExternalId;
     this.refundAmount = refundAmount; // instance of AmountDto
     this.reason = reason;
     this.partnerRefundNo = partnerRefundNo;
+    this.additionalInfo = additionalInfo
   }
 
   validateRefundRequestDto() {
@@ -52,6 +53,7 @@ class RefundRequestDto {
       refundAmount: this.refundAmount.toObject(),
       reason: this.reason,
       partnerRefundNo: this.partnerRefundNo,
+      additionalInfo: this.additionalInfo
     };
   }
 }

@@ -7,10 +7,10 @@ class AccountBindingRequestDto {
     }
     validateAccountBindingRequestDto() {
         const schema = Joi.object({
-            phoneNo:Joi.string().required(),
+            phoneNo:Joi.string().min(9).max(16).required(),
             additionalInfo: Joi.object({
                 channel: Joi.string().min(1).max(30).required(),
-                custIdMerchant:Joi.string().required(),
+                custIdMerchant:Joi.string().max(64).required(),
                 customerName:Joi.string(),
                 email:Joi.string(),
                 idCard:Joi.string(),
@@ -24,7 +24,6 @@ class AccountBindingRequestDto {
                 channelId:Joi.string()
             })
         })
-        console.log(this)
         const { error } = schema.validate(this, { abortEarly: false });
         if (error) {
             throw new Error(`Validation failed: ${error.details.map(x => x.message).join(', ')}`);
