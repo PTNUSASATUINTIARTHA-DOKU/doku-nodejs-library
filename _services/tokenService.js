@@ -252,13 +252,11 @@ module.exports = {
     },
     async hitTokenB2b2cApi(tokenB2b2cRequestDto, timestamp, signature, clientId, isProduction){
         const base_url_api = config.getBaseUrl(isProduction) + config.ACCESS_TOKEN_B2B2C;
-        console.log(timestamp)
         let header = {
             "X-CLIENT-KEY": clientId,
             "X-TIMESTAMP": timestamp,
             "X-SIGNATURE": signature
         };
-       console.log(tokenB2b2cRequestDto)
         return await new Promise((resolve, reject) => {
             axios({
                 method: 'post',

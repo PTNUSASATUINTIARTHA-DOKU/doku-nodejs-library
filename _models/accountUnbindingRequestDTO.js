@@ -1,5 +1,9 @@
 const Joi = require("joi");
-
+class AccountUnbindingAdditionalInfo {
+    constructor(channel) {
+        this.channel =channel;
+    }
+}
 class AccountUnbindingRequestDto {
     constructor(tokenId,additionalInfo) {
         this.tokenId = tokenId;
@@ -25,4 +29,4 @@ class AccountUnbindingRequestDto {
     }
 }
 
-module.exports = AccountUnbindingRequestDto;
+module.exports = {AccountUnbindingRequestDto,AccountUnbindingAdditionalInfo};

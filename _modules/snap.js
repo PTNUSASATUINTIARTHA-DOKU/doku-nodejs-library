@@ -29,7 +29,7 @@ class Snap{
         this.dokuPublicKey = options.dokuPublicKey
         this.issuer = options.issuer;
         this.secretKey = options.secretKey;
-        // this.getTokenB2B() 
+        this.getTokenB2B() 
     }
    
     
@@ -43,7 +43,11 @@ class Snap{
             this.setTokenB2B(tokenB2BResponseDto);
             return tokenB2BResponseDto;
         } catch (error) {
-            throw new Error(`Failed to get token: ${error.message}`);
+            if(error.response){
+                throw error;
+            }else{
+                throw new Error(`Failed to get token: ${error.message}`);
+            }
         }
     }
     async getTokenB2B2c(authCode) {
@@ -56,7 +60,12 @@ class Snap{
             this.setTokenB2B2C(tokenB2B2CResponseDto);
             return tokenB2B2CResponseDto;
         } catch (error) {
-            throw new Error(`Failed to get token: ${error.message}`);
+            if(error.response){
+                throw error;
+            }else{
+                throw new Error(`Failed to get token: ${error.message}`);
+            }
+            
         }
     }
     
@@ -209,6 +218,7 @@ class Snap{
         return vaController.notifyRequestMapping(header,body)
     }
     async doAccountUnbinding(AccountUnbindingRequestDto,ipAddress){
+        let channel = AccountUnbindingRequestDto.additionalInfo.channel;
         validateHeader({ipAddress,channel,type:"ACCOUNT_UNBINDING"})
         AccountUnbindingRequestDto.validateAccountUnbindingRequestDto();
         let tokenController = new TokenController();
@@ -236,7 +246,7 @@ class Snap{
         return AccountBindingResponseDto
     }
     async doPaymentJumpApp(paymentJumpAppRequestDto, ipAddress,deviceId) {
-        let channel = accountBindingRequestDto.additionalInfo.channel;
+        let channel = paymentJumpAppRequestDto.additionalInfo.channel;
         validateHeader({ipAddress,deviceId,channel,type:"PAYMENT"})
         paymentJumpAppRequestDto.validate();
     
@@ -251,7 +261,7 @@ class Snap{
         return PaymentJumpAppResponseDto
     }
     async doBalanceInquiry(balanceInquiryRequestDto, authCode,ipAddress)  {
-        let channel = accountBindingRequestDto.additionalInfo.channel;
+        let channel = balanceInquiryRequestDto.additionalInfo.channel;
         validateHeader({ipAddress,channel,type:"CHECK_BALANCE"})
         balanceInquiryRequestDto.validateBalanceInquiryRequestDto();
         
@@ -329,6 +339,7 @@ class Snap{
         refundRequestDto.validateRefundRequestDto();
     
         // check token b2b
+        let tokenController = new TokenController();
         let isTokenInvalid = tokenController.isTokenInvalid(this.tokenB2B, this.tokenExpiresIn, this.tokenGeneratedTimestamp);
         if(isTokenInvalid){
             await this.getTokenB2B();
