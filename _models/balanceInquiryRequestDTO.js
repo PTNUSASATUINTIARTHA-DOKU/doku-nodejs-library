@@ -1,4 +1,5 @@
-const Joi = require('joi');
+const Joi = require("joi");
+
 class BalanceInquiryRequestDto {
     constructor(additionalInfo) {
         this.additionalInfo = additionalInfo;

@@ -1,22 +1,22 @@
-class CardRegistrationResponseDto {
-    constructor(responseCode, responseMessage, referenceNo, bankCardToken, additionalInfo) {
-      this.responseCode = responseCode;
-      this.responseMessage = responseMessage;
-      this.referenceNo = referenceNo;
-      this.bankCardToken = bankCardToken;
-      this.additionalInfo = additionalInfo;
+class CardRegistrationResponseDTO {
+    constructor(responseCode, responseMessage, referenceNo = null, redirectUrl = null, additionalInfo = null) {
+        this.responseCode = responseCode;
+        this.responseMessage = responseMessage;
+        this.referenceNo = referenceNo;
+        this.redirectUrl = redirectUrl;
+        this.additionalInfo = additionalInfo instanceof CardRegistrationAdditionalInfoResponseDTO ? additionalInfo : null;
     }
-  
-    toObject() {
-      return {
-        responseCode: this.responseCode,
-        responseMessage: this.responseMessage,
-        referenceNo: this.referenceNo,
-        bankCardToken: this.bankCardToken,
-        additionalInfo: this.additionalInfo,
-      };
+}
+
+class CardRegistrationAdditionalInfoResponseDTO {
+    constructor(custIdMerchant = null, status = null, authCode = null) {
+        this.custIdMerchant = custIdMerchant;
+        this.status = status;
+        this.authCode = authCode;
     }
-  }
-  
-  module.exports = CardRegistrationResponseDto;
-  
+}
+
+module.exports = { 
+    CardRegistrationResponseDTO, 
+    CardRegistrationAdditionalInfoResponseDTO 
+};

@@ -69,7 +69,7 @@ class PaymentAdditionalInfoRequestDto {
 }
 
 class PaymentRequestDto {
-    constructor(partnerReferenceNo, amount, payOptionDetails, additionalInfo) {
+    constructor(partnerReferenceNo, amount, payOptionDetails, additionalInfo, chargeToken) {
         this.partnerReferenceNo = partnerReferenceNo;
         this.amount = amount instanceof TotalAmountDto ? amount : null;
         this.payOptionDetails = Array.isArray(payOptionDetails)
@@ -78,6 +78,7 @@ class PaymentRequestDto {
         this.additionalInfo = additionalInfo instanceof PaymentAdditionalInfoRequestDto
             ? additionalInfo
             : null;
+        this.chargeToken = chargeToken;    
     }
   
     validatePaymentRequestDto(){
@@ -87,20 +88,22 @@ class PaymentRequestDto {
                 value: Joi.string().min(4).max(19).pattern(/^(0|[1-9]\d{0,15})(\.\d{2})?$/).required(),
                 currency: Joi.string().length(3).default('IDR').required()
             }).required(),
-            payOptionDetails: Joi.array().items(
-                Joi.object({
-                    payMethod: Joi.string().required(),
-                    transAmount: Joi.object({
-                        value: Joi.string().min(4).max(19).pattern(/^(0|[1-9]\d{0,15})(\.\d{2})?$/).required(),
-                        currency: Joi.string().length(3).default('IDR').required()
-                    }).required()
-                })
-            ).required(),            
+            payOptionDetails: Joi.array().items(Joi.object({
+                payMethod: Joi.string().required(),
+                transAmount: Joi.object({
+                    value: Joi.string().min(4).max(16).pattern(/^(0|[1-9]\d{0,15})(\.\d{2})?$/).required(),
+                    currency: Joi.string().length(3).default('IDR').required()
+                }).required(),
+                feeAmount: Joi.object({
+                    value: Joi.string().min(4).max(16).pattern(/^(0|[1-9]\d{0,15})(\.\d{2})?$/).required(),
+                    currency: Joi.string().length(3).default('IDR').required()
+                }).required()
+            })).required(),
             additionalInfo: Joi.object({
                 channel: Joi.string().min(1).max(30).required(),
                 successPaymentUrl:Joi.string().required(),
                 failedPaymentUrl:Joi.string().required(),
-                remarks:Joi.string().required(),
+                remarks:Joi.string().max(40).required(),
                 lineItems: Joi.array().items(
                     Joi.object({
                         name: Joi.string().required(),
@@ -108,7 +111,8 @@ class PaymentRequestDto {
                         quantity: Joi.number().required(),
                     })
                 ).required()
-            })
+            }),
+            chargeToken: Joi.string().optional()
         })
         const { error } = schema.validate(this, { abortEarly: false });
         if (error) {
