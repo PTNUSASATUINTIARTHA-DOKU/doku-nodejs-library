@@ -53,7 +53,6 @@ class VaController{
         let endPointUrl = Config.CHECK_STATUS_VA;
         let httpMethod = "POST"
         let signature = tokenService.generateSymmetricSignature(httpMethod,endPointUrl,tokenB2B,checkVARequestDTO,timestamp,secretKey);
-        console.log("signature :"+signature)
         let externalId = commonFunction.generateExternalId();
         let header = vaService.createVaRequesHeaderDto(checkVARequestDTO.additionalInfo?.channel, clientId, tokenB2B, timestamp, externalId, signature)
         return vaService.doCheckStatusVa(header, checkVARequestDTO,isProduction)

@@ -70,8 +70,8 @@ class TokenController{
         return vaService.createVaRequesHeaderDto(channelId,clientId,tokenB2B, timestamp, externalId, signature);
     }
     async getTokenB2b2c(authCode, privateKey, clientId, isProduction){
-        const timestamp =  TokenService.generateTimestamp() - 7;
-        const signature =  TokenService.createSignature(privateKey, clientId, timestamp);
+        const timestamp =  TokenService.generateTimestamp();
+        const signature = TokenService.generateSignature(privateKey, clientId, timestamp);
         const tokenB2b2cRequestDto = TokenService.createTokenB2b2cRequestDto(authCode);
 	    return await TokenService.hitTokenB2b2cApi(tokenB2b2cRequestDto, timestamp, signature, clientId, isProduction);
     }

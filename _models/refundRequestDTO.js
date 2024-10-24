@@ -7,7 +7,7 @@ class RefundRequestDto {
     this.refundAmount = refundAmount; // instance of AmountDto
     this.reason = reason;
     this.partnerRefundNo = partnerRefundNo;
-    this.additionalInfo = additionalInfo
+    this.additionalInfo = additionalInfo;
   }
 
   validateRefundRequestDto() {
@@ -40,7 +40,8 @@ class RefundRequestDto {
         .max(255)
         .optional(),
       partnerRefundNo: Joi.string()
-        .max(12)
+        .min(32)
+        .max(64)
         .required(),
     });
 

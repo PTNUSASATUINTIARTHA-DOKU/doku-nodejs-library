@@ -12,7 +12,7 @@ class DirectDebitController {
         let endPointUrl = Config.DIRECT_DEBIT_ACCOUNT_UNBINDING_URL;
         let httpMethod = "POST";
         let signature = tokenService.generateSymmetricSignature(httpMethod, endPointUrl, tokenB2B, AccountUnbindingRequestDto, timestamp, secretKey);
-        let externalId = commonFunction.generateExternalId();
+        let externalId = Date.now().toString();
         let header = requestHeader.generateRequestHeader({
             timestamp, signature, clientId, externalId, ipAddress, tokenB2B, endPointUrl, requestDto: AccountUnbindingRequestDto
         });
@@ -36,7 +36,7 @@ class DirectDebitController {
         let endPointUrl = Config.DIRECT_DEBIT_PAYMENT_URL;
         let httpMethod = "POST";
         let signature = tokenService.generateSymmetricSignature(httpMethod, endPointUrl, tokenB2B, paymentJumpAppRequestDto, timestamp, secretKey);
-        let externalId = commonFunction.generateExternalId();
+        let externalId = Date.now().toString();
         let header = requestHeader.generateRequestHeader({
             timestamp, signature, clientId, externalId, ipAddress, channelId: "DH", tokenB2B, endPointUrl, requestDto: paymentJumpAppRequestDto,deviceId
         });
@@ -48,7 +48,7 @@ class DirectDebitController {
         let endPointUrl = Config.DIRECT_DEBIT_BALANCE_INQUIRY_URL;
         let httpMethod = "POST";
         let signature = tokenService.generateSymmetricSignature(httpMethod, endPointUrl, tokenB2B, balanceInquiryRequestDto, timestamp, secretKey);
-        let externalId = commonFunction.generateExternalId();
+        let externalId = Date.now().toString();
         let header = requestHeader.generateRequestHeader({
             timestamp, signature, clientId, externalId, ipAddress, tokenB2B, tokenB2b2c, endPointUrl, requestDto: balanceInquiryRequestDto
         });
@@ -60,7 +60,7 @@ class DirectDebitController {
         let endPointUrl = Config.DIRECT_DEBIT_PAYMENT_URL;
         let httpMethod = "POST";
         let signature = tokenService.generateSymmetricSignature(httpMethod, endPointUrl, tokenB2B, paymentRequestDto, timestamp, secretKey);
-        let externalId = commonFunction.generateExternalId();
+        let externalId = Date.now().toString();
         let header = requestHeader.generateRequestHeader({
             timestamp, signature, clientId, externalId, tokenB2B, tokenB2b2c, endPointUrl, requestDto: paymentRequestDto, ipAddress
         });
@@ -70,6 +70,9 @@ class DirectDebitController {
     async doRegistrationCardBind(cardRegistrationRequestDto, clientId, tokenB2B, secretKey, isProduction) {
         let cardData = JSON.stringify(cardRegistrationRequestDto.cardData)
         let encryptCbc = directDebitService.encryptCbc(cardData,secretKey)
+        // let decryptCbc = directDebitService.decryptCbc("VwpZPud1/Q4Q0h5V+boNsOMhR3fr/QBXPAEV1BG4aoeoRmP8gREs8gpfffyqAl2skDrPnkhu0Ybm87MGEJv0hmBd3PrZ8b9ikROwRDfanrOUYeiVEakNvhmsHPfUK+3QOS2Ant6FcpuZN7QR43Yz5qMnxr4VvSyDxAwDDZsR/NFdGcadCqCUsCo6E/Dk2/yNStOz5jautV+NiWQyV93rWQ==|KwSyyaNTNeMruKgWj97Jsg==",secretKey)
+        // console.log("encryptCbc: "+encryptCbc)
+        // console.log("decryptCbc: "+decryptCbc)
         cardRegistrationRequestDto.cardData = encryptCbc;
         let timestamp = tokenService.generateTimestamp();
         let endPointUrl = Config.DIRECT_DEBIT_CARD_BINDING_URL;
@@ -86,7 +89,7 @@ class DirectDebitController {
         let endPointUrl = Config.DIRECT_DEBIT_CARD_UNBINDING_URL;
         let httpMethod = "POST";
         let signature = tokenService.generateSymmetricSignature(httpMethod, endPointUrl, tokenB2B, cardUnRegistUnbindRequestDTO, timestamp, secretKey);
-        let externalId = commonFunction.generateExternalId();
+        let externalId = Date.now().toString();
         let header = requestHeader.generateRequestHeader({
             timestamp, signature, externalId,clientId, tokenB2B, endPointUrl, requestDto: cardUnRegistUnbindRequestDTO
         });
@@ -98,7 +101,7 @@ class DirectDebitController {
         let endPointUrl = Config.DIRECT_DEBIT_REFUND_URL;
         let httpMethod = "POST";
         let signature = tokenService.generateSymmetricSignature(httpMethod, endPointUrl, tokenB2B, refundRequestDto, timestamp, secretKey);
-        let externalId = commonFunction.generateExternalId();
+        let externalId = Date.now().toString();
         let header = requestHeader.generateRequestHeader({
             timestamp, signature, clientId, externalId, tokenB2B, tokenB2b2c, endPointUrl, requestDto: refundRequestDto, deviceId,ipAddress
         });
@@ -110,7 +113,7 @@ class DirectDebitController {
         let endPointUrl = Config.DIRECT_DEBIT_CHECK_STATUS_URL;
         let httpMethod = "POST";
         let signature = tokenService.generateSymmetricSignature(httpMethod, endPointUrl, tokenB2B, checkStatusRequestDto, timestamp, secretKey);
-        let externalId = commonFunction.generateExternalId();
+        let externalId = Date.now().toString();
         let header = requestHeader.generateRequestHeader({
             timestamp, signature, clientId, externalId, tokenB2B, endPointUrl, requestDto: checkStatusRequestDto
         });

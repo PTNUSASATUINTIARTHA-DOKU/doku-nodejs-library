@@ -80,9 +80,10 @@ class PaymentRequestDto {
             : null;
         this.chargeToken = chargeToken;    
     }
+  
     validatePaymentRequestDto(){
         const schema = Joi.object({
-            partnerReferenceNo:Joi.string().required(),
+            partnerReferenceNo:Joi.string().min(32).max(64).required(),
             amount: Joi.object({
                 value: Joi.string().min(4).max(19).pattern(/^(0|[1-9]\d{0,15})(\.\d{2})?$/).required(),
                 currency: Joi.string().length(3).default('IDR').required()
@@ -106,8 +107,8 @@ class PaymentRequestDto {
                 lineItems: Joi.array().items(
                     Joi.object({
                         name: Joi.string().required(),
-                        price: Joi.string().required(),
-                        quantity: Joi.string().required(),
+                        price: Joi.number().required(),
+                        quantity: Joi.number().required(),
                     })
                 ).required()
             }),
