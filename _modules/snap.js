@@ -339,7 +339,6 @@ class Snap{
         refundRequestDto.validateRefundRequestDto();
         let tokenController = new TokenController();
         // check token b2b
-        let tokenController = new TokenController();
         let isTokenInvalid = tokenController.isTokenInvalid(this.tokenB2B, this.tokenExpiresIn, this.tokenGeneratedTimestamp);
         if(isTokenInvalid){
             await this.getTokenB2B();

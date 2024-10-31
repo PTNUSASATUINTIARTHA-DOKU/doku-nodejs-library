@@ -42,3 +42,5 @@ testem.log
 Thumbs.db
 /example-app/
 /example-app-test/
+
+package-lock.json

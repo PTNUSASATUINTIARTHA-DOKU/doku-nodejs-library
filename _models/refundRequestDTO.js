@@ -12,8 +12,9 @@ class RefundRequestDto {
 
   validateRefundRequestDto() {
     const additionalInfoSchema = Joi.object({
-        channel: Joi.string().required()
-    })
+      channel: Joi.string().required(),
+    });
+    
     const amountSchema = Joi.object({
       value: Joi.string()
         .min(1)
@@ -26,27 +27,31 @@ class RefundRequestDto {
         .max(3)
         .required(),
     });
-
-    const schema = Joi.object({
-      originalPartnerReferenceNo: Joi.string()
-        .max(12)
-        .required(),
-      originalExternalId: Joi.string()
-        .max(36)
-        .optional(),
+  
+    // Create base schema
+    let schema = Joi.object({
+      originalPartnerReferenceNo: Joi.string().min(32).max(64).required(),
+      originalExternalId: Joi.string().max(36).optional(),
       refundAmount: amountSchema.required(),
-      additionalInfo:additionalInfoSchema.required(),
-      reason: Joi.string()
-        .max(255)
-        .optional(),
-      partnerRefundNo: Joi.string()
-        .min(32)
-        .max(64)
-        .required(),
+      additionalInfo: additionalInfoSchema.required(),
+      reason: Joi.string().max(255).optional(),
+      partnerRefundNo: Joi.string().max(64).required(), // Default partnerRefundNo
     });
-
-    return schema.validate(this);
+  
+    // Modify schema conditionally
+    if (this.additionalInfo.channel === "DIRECT_DEBIT_ALLO_SNAP") {
+      schema = schema.keys({
+        partnerRefundNo: Joi.string().min(32).max(64).required(), // More strict validation
+      });
+    }
+  
+    // Validate the object
+    const { error } = schema.validate(this, { abortEarly: false });
+    if (error) {
+      throw new Error(`Validation failed: ${error.details.map(x => x.message).join(', ')}`);
+    }
   }
+  
   toObject() {
     return {
       originalPartnerReferenceNo: this.originalPartnerReferenceNo,
