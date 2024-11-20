@@ -186,9 +186,8 @@ module.exports = {
             "X-PARTNER-ID": header.xPartnerId,
             "X-TIMESTAMP": header.xTimestamp,
             "X-SIGNATURE": header.xSignature,
-            "Authorization":"Bearer " + header.authorization,
             "X-EXTERNAL-ID": header.xExternalId,
-            "Authorization":header.authorization
+            "Authorization":"Bearer "+header.authorization
         }
         return await new Promise((resolve, reject) => {
             axios({
@@ -198,7 +197,7 @@ module.exports = {
                 data:cardUnRegistUnbindRequestDTO
             })
             .then((res) => {
-                let response = new CardUnRegistUnbindResponseDto(res.data)
+                let response = res.data;
                 resolve(response);
             })
             .catch((err) => {
