@@ -1,10 +1,10 @@
 class PaymentResponseDirectDebitDTO {
-    constructor(responseCode,responseMessage,webRedirectUrl,partnerReferenceNo,referenceNo) {
-        this.responseCode = responseCode;
-        this.responseMessage = responseMessage;
-        this.webRedirectUrl = webRedirectUrl;
-        this.partnerReferenceNo = partnerReferenceNo;
-        this.referenceNo = referenceNo
+    constructor(data) {
+        this.responseCode = data.responseCode;
+        this.responseMessage = data.responseMessage;
+        this.webRedirectUrl = data.webRedirectUrl;
+        this.partnerReferenceNo = data.partnerReferenceNo?data.partnerReferenceNo:null
+        this.referenceNo = data.referenceNo?data.referenceNo:null
     }
     
     toObject() {

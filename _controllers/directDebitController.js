@@ -117,7 +117,7 @@ class DirectDebitController {
         let header = requestHeader.generateRequestHeader({
             timestamp, signature, clientId, externalId, tokenB2B, endPointUrl, requestDto: checkStatusRequestDto
         });
-        return await directDebitService.doCheckStatusProcess(header, checkStatusRequestDto, isProduction);
+        return await directDebitService.doCheckStatusProccess(header, checkStatusRequestDto, isProduction);
     }
 }
 

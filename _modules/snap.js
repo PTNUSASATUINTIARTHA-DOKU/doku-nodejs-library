@@ -325,6 +325,8 @@ class Snap{
     
         let tokenController = new TokenController();
         let isTokenInvalid = tokenController.isTokenInvalid(this.tokenB2B, this.tokenExpiresIn, this.tokenGeneratedTimestamp);
+        console.log(this.tokenB2B)
+        console.log(isTokenInvalid)
         if(isTokenInvalid){
             await this.getTokenB2B();
         }
@@ -339,7 +341,6 @@ class Snap{
         refundRequestDto.validateRefundRequestDto();
         let tokenController = new TokenController();
         // check token b2b
-        let tokenController = new TokenController();
         let isTokenInvalid = tokenController.isTokenInvalid(this.tokenB2B, this.tokenExpiresIn, this.tokenGeneratedTimestamp);
         if(isTokenInvalid){
             await this.getTokenB2B();

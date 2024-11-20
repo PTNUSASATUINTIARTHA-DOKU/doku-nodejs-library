@@ -7,6 +7,7 @@ const AES = 'aes-128-cbc';
 const AES_CBC_PADDING = 'aes-128-cbc';
 const Config = require("../_commons/config");
 const CardUnRegistUnbindResponseDto = require("../_models/cardUnregistUnbindResponseDTO");
+const PaymentResponseDirectDebitDTO = require("../_models/paymentResponseDirectDebitDTO");
 
 module.exports = {
     async  doAccountUnBindingProcess(requestHeaderDto, accountUnbindingRequestDto, isProduction) {
@@ -143,7 +144,7 @@ module.exports = {
                 data:paymentRequestDto
             })
             .then((res) => {
-                let response = res.data;
+                let response = new PaymentResponseDirectDebitDTO(res.data);
                 resolve(response);
             })
             .catch((err) => {
@@ -174,6 +175,7 @@ module.exports = {
                 resolve(response);
             })
             .catch((err) => {
+                console.log(err)
                 reject(err);
             });
         });
@@ -184,9 +186,8 @@ module.exports = {
             "X-PARTNER-ID": header.xPartnerId,
             "X-TIMESTAMP": header.xTimestamp,
             "X-SIGNATURE": header.xSignature,
-            "Authorization":"Bearer " + header.authorization,
             "X-EXTERNAL-ID": header.xExternalId,
-            "Authorization":header.xAuthorization
+            "Authorization":"Bearer "+header.authorization
         }
         return await new Promise((resolve, reject) => {
             axios({
@@ -196,7 +197,7 @@ module.exports = {
                 data:cardUnRegistUnbindRequestDTO
             })
             .then((res) => {
-                let response = new CardUnRegistUnbindResponseDto(res.data)
+                let response = res.data;
                 resolve(response);
             })
             .catch((err) => {
@@ -278,7 +279,7 @@ module.exports = {
           // throw error or handle it
           console.error('Decryption error:', error);
         }
-      },
+    },
     encryptCbc(input, secretKey) {
         try {
           secretKey = this.getSecretKey(secretKey);
