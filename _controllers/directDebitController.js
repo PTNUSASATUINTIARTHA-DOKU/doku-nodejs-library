@@ -5,9 +5,12 @@ const Config = require("../_commons/config");
 const requestHeader = require("../_commons/requestHeader");
 const directDebitService = require("../_services/directDebitService");
 const tokenService = require("../_services/tokenService");
+const OriginDto = require("../_models/originDTO");
 
 class DirectDebitController {
     async doAccountUnbinding(AccountUnbindingRequestDto, privateKey, clientId, tokenB2B, ipAddress, secretKey, isProduction) {
+        AccountUnbindingRequestDto.additionalInfo["origin"] = new OriginDto().toObject();
+        console.log(AccountUnbindingRequestDto);
         let timestamp = tokenService.generateTimestamp();
         let endPointUrl = Config.DIRECT_DEBIT_ACCOUNT_UNBINDING_URL;
         let httpMethod = "POST";
@@ -20,6 +23,8 @@ class DirectDebitController {
     }
 
     async doAccountBinding(AccountBindingRequestDto, privateKey, clientId, tokenB2B, ipAddress,deviceId, secretKey, isProduction) {
+        AccountBindingRequestDto.additionalInfo["origin"] = new OriginDto().toObject()
+        console.log(AccountBindingRequestDto)
         let timestamp = tokenService.generateTimestamp();
         let endPointUrl = Config.DIRECT_DEBIT_ACCOUNT_BINDING_URL;
         let httpMethod = "POST";
@@ -32,6 +37,7 @@ class DirectDebitController {
     }
 
     async doPaymentJumpApp(paymentJumpAppRequestDto, privateKey, clientId, tokenB2B, ipAddress,deviceId, secretKey, isProduction) {
+        paymentJumpAppRequestDto.additionalInfo["origin"] = new OriginDto().toObject()
         let timestamp = tokenService.generateTimestamp();
         let endPointUrl = Config.DIRECT_DEBIT_PAYMENT_URL;
         let httpMethod = "POST";
@@ -44,6 +50,7 @@ class DirectDebitController {
     }
 
     async doBalanceInquiry(balanceInquiryRequestDto, privateKey, clientId, ipAddress, tokenB2b2c, tokenB2B, secretKey, isProduction) {
+        balanceInquiryRequestDto.additionalInfo["origin"] = new OriginDto().toObject()
         let timestamp = tokenService.generateTimestamp();
         let endPointUrl = Config.DIRECT_DEBIT_BALANCE_INQUIRY_URL;
         let httpMethod = "POST";
@@ -56,6 +63,7 @@ class DirectDebitController {
     }
 
     async doPayment(paymentRequestDto, privateKey, clientId, tokenB2B, tokenB2b2c, secretKey, isProduction, ipAddress) {
+        paymentRequestDto.additionalInfo["origin"] = new OriginDto().toObject()
         let timestamp = tokenService.generateTimestamp();
         let endPointUrl = Config.DIRECT_DEBIT_PAYMENT_URL;
         let httpMethod = "POST";
@@ -74,6 +82,7 @@ class DirectDebitController {
         // console.log("encryptCbc: "+encryptCbc)
         // console.log("decryptCbc: "+decryptCbc)
         cardRegistrationRequestDto.cardData = encryptCbc;
+        cardRegistrationRequestDto.additionalInfo["origin"] = new OriginDto().toObject()
         let timestamp = tokenService.generateTimestamp();
         let endPointUrl = Config.DIRECT_DEBIT_CARD_BINDING_URL;
         let httpMethod = "POST";
@@ -85,6 +94,7 @@ class DirectDebitController {
         return await directDebitService.doRegistrationCardBindProcess(header, cardRegistrationRequestDto, isProduction);
     }
     async doUnRegistCardUnBind(cardUnRegistUnbindRequestDTO, clientId,tokenB2B, secretKey, isProduction){
+        cardUnRegistUnbindRequestDTO.additionalInfo["origin"] = new OriginDto().toObject()
         let timestamp = tokenService.generateTimestamp();
         let endPointUrl = Config.DIRECT_DEBIT_CARD_UNBINDING_URL;
         let httpMethod = "POST";
@@ -97,6 +107,7 @@ class DirectDebitController {
     }
 
     async doRefund(refundRequestDto, privateKey, clientId, tokenB2B, tokenB2b2c, secretKey, isProduction,ipAddress,deviceId) {
+        refundRequestDto.additionalInfo["origin"] = new OriginDto().toObject()
         let timestamp = tokenService.generateTimestamp();
         let endPointUrl = Config.DIRECT_DEBIT_REFUND_URL;
         let httpMethod = "POST";
@@ -109,6 +120,7 @@ class DirectDebitController {
     }
 
     async doCheckStatus(checkStatusRequestDto, clientId, tokenB2B, secretKey, isProduction) {
+        checkStatusRequestDto.additionalInfo["origin"] = new OriginDto().toObject()
         let timestamp = tokenService.generateTimestamp();
         let endPointUrl = Config.DIRECT_DEBIT_CHECK_STATUS_URL;
         let httpMethod = "POST";

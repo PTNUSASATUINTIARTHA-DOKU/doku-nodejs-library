@@ -1,6 +1,10 @@
 {
   "name": "doku-nodejs-library",
+<<<<<<< Updated upstream
   "version": "1.0.43",
+=======
+  "version": "1.0.45",
+>>>>>>> Stashed changes
   "description": "doku nodejs library",
   "main": "index.js",
   "scripts": {
