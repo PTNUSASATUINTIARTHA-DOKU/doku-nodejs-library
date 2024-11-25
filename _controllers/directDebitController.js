@@ -10,7 +10,6 @@ const OriginDto = require("../_models/originDTO");
 class DirectDebitController {
     async doAccountUnbinding(AccountUnbindingRequestDto, privateKey, clientId, tokenB2B, ipAddress, secretKey, isProduction) {
         AccountUnbindingRequestDto.additionalInfo["origin"] = new OriginDto().toObject();
-        console.log(AccountUnbindingRequestDto);
         let timestamp = tokenService.generateTimestamp();
         let endPointUrl = Config.DIRECT_DEBIT_ACCOUNT_UNBINDING_URL;
         let httpMethod = "POST";
@@ -24,7 +23,6 @@ class DirectDebitController {
 
     async doAccountBinding(AccountBindingRequestDto, privateKey, clientId, tokenB2B, ipAddress,deviceId, secretKey, isProduction) {
         AccountBindingRequestDto.additionalInfo["origin"] = new OriginDto().toObject()
-        console.log(AccountBindingRequestDto)
         let timestamp = tokenService.generateTimestamp();
         let endPointUrl = Config.DIRECT_DEBIT_ACCOUNT_BINDING_URL;
         let httpMethod = "POST";
