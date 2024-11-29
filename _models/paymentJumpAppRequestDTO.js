@@ -25,7 +25,7 @@ class PaymentJumpAppRequestDto {
             validUpTo: Joi.date().iso().required(),
             pointOfInitiation: Joi.string().max(20).required(),
             additionalInfo: Joi.object({
-                channel: Joi.string().valid('EMONEY_DANA_SNAP').required(),
+                channel: Joi.string().min(1).max(30).required(),
                 orderTitle: Joi.string().optional()
             }).required()
         });
