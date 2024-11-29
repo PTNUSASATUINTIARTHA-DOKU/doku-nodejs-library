@@ -1,11 +1,11 @@
 const Joi = require('joi');
 
 class PaymentJumpAppRequestDto {
-    constructor(partnerReferenceNo, amount, urlParam, validUpto, pointOfInitiation, additionalInfo) {
+    constructor(partnerReferenceNo, amount, urlParam, validUpTo, pointOfInitiation, additionalInfo) {
         this.partnerReferenceNo = partnerReferenceNo; // Invoice number from partner
         this.amount = amount; // Object containing value and currency
         this.urlParam = urlParam; // Object containing url, type, and isDeepLink
-        this.validUpto = validUpto; // Expired time payment url
+        this.validUpTo = validUpTo; // Expired time payment url
         this.pointOfInitiation = pointOfInitiation; // Point of initiation from partner
         this.additionalInfo = additionalInfo; // Object containing channel and orderTitle
     }
@@ -17,12 +17,12 @@ class PaymentJumpAppRequestDto {
                 value: Joi.string().regex(/^\d+(\.\d{1,2})?$/).required(),
                 currency: Joi.string().length(3).required()
             }).required(),
-            urlParam: Joi.object({
+            urlParam: Joi.array().items(Joi.object({
                 url: Joi.string().uri().max(255).required(),
                 type: Joi.string().valid('PAY_RETURN').required(),
                 isDeepLink: Joi.string().valid('Y', 'N').required()
-            }).required(),
-            validUpto: Joi.string().isoDate().required(),
+            })).required(),
+            validUpTo: Joi.date().iso().required(),
             pointOfInitiation: Joi.string().max(20).required(),
             additionalInfo: Joi.object({
                 channel: Joi.string().valid('EMONEY_DANA_SNAP').required(),
@@ -43,7 +43,7 @@ class PaymentJumpAppRequestDto {
             partnerReferenceNo: this.partnerReferenceNo,
             amount: this.amount,
             urlParam: this.urlParam,
-            validUpto: this.validUpto,
+            validUpTo: this.validUpTo,
             pointOfInitiation: this.pointOfInitiation,
             additionalInfo: this.additionalInfo
         };
