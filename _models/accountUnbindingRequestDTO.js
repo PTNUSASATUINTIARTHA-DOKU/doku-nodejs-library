@@ -1,4 +1,6 @@
 const Joi = require("joi");
+const DIRECT_DEBIT_CHANNEL = require("../_commons/ddChannelEnum")
+
 class AccountUnbindingAdditionalInfo {
     constructor(channel) {
         this.channel =channel;
@@ -10,10 +12,13 @@ class AccountUnbindingRequestDto {
         this.additionalInfo = additionalInfo;
     }
     validateAccountUnbindingRequestDto() {
+        const validChannels = Object.values(DIRECT_DEBIT_CHANNEL);
         const schema = Joi.object({
             tokenId:Joi.string().required(),
             additionalInfo: Joi.object({
-                channel: Joi.string().min(1).max(30).required()
+                channel: Joi.string().valid(...validChannels).optional().messages({
+                    'any.only': 'additionalInfo.channel is not valid. Ensure that additionalInfo.channel is one of the valid channels. Example: DIRECT_DEBIT_ALLO_SNAP'
+                  }),
             })
         })
         const { error } = schema.validate(this, { abortEarly: false });

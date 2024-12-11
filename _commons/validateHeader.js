@@ -16,11 +16,11 @@ function validateHeader({ ipAddress, deviceId, channel, type }) {
     if (needsDeviceId) {
         schema = Joi.object({
             ...commonSchema,
-            deviceId: commonSchema.deviceId.required()  
+            deviceId: commonSchema.deviceId.required().messages({"X":"X-DEVICE-ID must be 64 characters or fewer. Ensure that X-DEVICE-ID is no longer than 64 characters."})  
         });
         const { error } = schema.validate({ ipAddress, deviceId });
         if (error) {
-            throw new Error(`Validation error: ${error.details.map(x => x.message).join(', ')}`);
+            throw new Error(`X-DEVICE-ID must be 64 characters or fewer. Ensure that X-DEVICE-ID is no longer than 64 characters.`);
         }
     } else {
         schema = Joi.object({
@@ -28,7 +28,7 @@ function validateHeader({ ipAddress, deviceId, channel, type }) {
         });
         const { error } = schema.validate({ ipAddress });
         if (error) {
-            throw new Error(`Validation error: ${error.details.map(x => x.message).join(', ')}`);
+            throw new Error(`X-IP-ADDRESS must be in 10 to 15 characters.`);
         }
     }
     const validationData = { ipAddress };

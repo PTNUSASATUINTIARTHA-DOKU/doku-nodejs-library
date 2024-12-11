@@ -60,7 +60,7 @@ class DirectDebitController {
         return await directDebitService.doBalanceInquiryProcess(header, balanceInquiryRequestDto, isProduction);
     }
 
-    async doPayment(paymentRequestDto, privateKey, clientId, tokenB2B, tokenB2b2c, secretKey, isProduction, ipAddress) {
+    async doPayment(paymentRequestDto, privateKey, clientId, tokenB2B, tokenB2b2c, secretKey, isProduction, ipAddress, deviceId) {
         paymentRequestDto.additionalInfo["origin"] = new OriginDto().toObject()
         let timestamp = tokenService.generateTimestamp();
         let endPointUrl = Config.DIRECT_DEBIT_PAYMENT_URL;
@@ -68,7 +68,7 @@ class DirectDebitController {
         let signature = tokenService.generateSymmetricSignature(httpMethod, endPointUrl, tokenB2B, paymentRequestDto, timestamp, secretKey);
         let externalId = Date.now().toString();
         let header = requestHeader.generateRequestHeader({
-            timestamp, signature, clientId, externalId, tokenB2B, tokenB2b2c, endPointUrl, requestDto: paymentRequestDto, ipAddress
+            timestamp, signature, clientId, externalId, tokenB2B, tokenB2b2c, deviceId, endPointUrl, requestDto: paymentRequestDto, ipAddress
         });
         return await directDebitService.doPaymentProcess(header, paymentRequestDto, isProduction);
     }

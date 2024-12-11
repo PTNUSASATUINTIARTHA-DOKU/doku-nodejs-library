@@ -30,25 +30,53 @@ class RefundRequestDto {
   
     // Create base schema
     let schema = Joi.object({
-      originalPartnerReferenceNo: Joi.string().min(32).max(64).required(),
-      originalExternalId: Joi.string().max(36).optional(),
+      originalPartnerReferenceNo: Joi.string().min(1).max(64).required(),
+      originalExternalId: Joi.string().max(36).required(),
       refundAmount: amountSchema.required(),
       additionalInfo: additionalInfoSchema.required(),
       reason: Joi.string().max(255).optional(),
       partnerRefundNo: Joi.string().max(64).required(), // Default partnerRefundNo
     });
-  
-    // Modify schema conditionally
-    if (this.additionalInfo.channel === "DIRECT_DEBIT_ALLO_SNAP") {
+
+    if (this.additionalInfo.channel == "EMONEY_OVO_SNAP"){
       schema = schema.keys({
-        partnerRefundNo: Joi.string().min(32).max(64).required(), // More strict validation
-      });
+        originalPartnerReferenceNo: Joi.string().max(32).required().messages({"*":"originalPartnerReferenceNo must be 32 characters or fewer. Ensure that originalPartnerReferenceNo is no longer than 32 characters. Example: 'INV-001'."}),
+      })
+    } else if (this.additionalInfo.channel == "EMONEY_DANA_SNAP" || this.additionalInfo.channel == "EMONEY_SHOPEE_PAY_SNAP" || this.additionalInfo.channel == "DIRECT_DEBIT_ALLO_SNAP") {
+      schema = schema.keys({
+        originalPartnerReferenceNo: Joi.string().max(64).required().messages({"*":"originalPartnerReferenceNo must be 64 characters or fewer. Ensure that originalPartnerReferenceNo is no longer than 64 characters. Example: 'INV-001'."}),
+      })
+    } else if(this.additionalInfo.channel == "DIRECT_DEBIT_CIMB_SNAP" || this.additionalInfo.channel == "DIRECT_DEBIT_BRI_SNAP") {
+      schema = schema.keys({
+        originalPartnerReferenceNo: Joi.string().max(12).required().messages({"*":"originalPartnerReferenceNo must be 12 characters or fewer. Ensure that originalPartnerReferenceNo is no longer than 12 characters. Example: 'INV-001'."}),
+      })
     }
   
+    // Modify schema conditionally
+    if (this.additionalInfo.channel === "EMONEY_DANA_SNAP" || this.additionalInfo.channel === "EMONEY_SHOPEE_PAY_SNAP" || this.additionalInfo.channel === "EMONEY_OVO_SNAP") {
+      schema = schema.keys({
+        partnerRefundNo: Joi.string().min(1).max(64).required().messages({
+          "*": "partnerRefundNo must be 64 characters or fewer. Ensure that partnerRefundNo is no longer than 64 characters. Example: 'INV-REF-001'."
+        }), // More strict validation
+      });
+    } else if(this.additionalInfo.channel === "DIRECT_DEBIT_CIMB_SNAP" || this.additionalInfo.channel === "DIRECT_DEBIT_BRI_SNAP" || this.additionalInfo.channel === "EMONEY_OVO_SNAP") {
+      schema = schema.keys({
+        partnerRefundNo: Joi.string().min(1).max(12).required().messages({
+          "*": "partnerRefundNo must be 12 characters or fewer. Ensure that partnerRefundNo is no longer than 12 characters. Example: 'INV-REF-001'."
+        }), // More strict validation
+      });
+    } else if(this.additionalInfo.channel === "DIRECT_DEBIT_ALLO_SNAP") {
+      schema = schema.keys({
+        partnerRefundNo: Joi.string().min(32).max(64).required().messages({
+          "*": "partnerRefundNo must be 64 characters and at least 32 characters. Ensure that partnerRefundNo is no longer than 64 characters and at least 32 characters. Example: 'INV-REF-001'."
+        }), // More strict validation
+      });
+    } 
+  
     // Validate the object
-    const { error } = schema.validate(this, { abortEarly: false });
+    const { error } = schema.validate(this, { abortEarly: true });
     if (error) {
-      throw new Error(`Validation failed: ${error.details.map(x => x.message).join(', ')}`);
+      throw new Error(`${error.details.map(x => x.message).join(', ')}`);
     }
   }
   
