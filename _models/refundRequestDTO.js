@@ -63,9 +63,15 @@ class RefundRequestDto {
           "*": "partnerRefundNo must be 64 characters or fewer. Ensure that partnerRefundNo is no longer than 64 characters. Example: 'INV-REF-001'."
         }), // More strict validation
       });
-    } else if(this.additionalInfo.channel === "DIRECT_DEBIT_ALLO_SNAP" || this.additionalInfo.channel === "DIRECT_DEBIT_BRI_SNAP" || this.additionalInfo.channel === "DIRECT_DEBIT_CIMB_SNAP") {
+    } else if(this.additionalInfo.channel === "DIRECT_DEBIT_BRI_SNAP" || this.additionalInfo.channel === "DIRECT_DEBIT_CIMB_SNAP") {
       schema = schema.keys({
         partnerRefundNo: Joi.string().min(1).max(12).required().messages({
+          "*": "partnerRefundNo must be 12 characters or fewer. Ensure that partnerRefundNo is no longer than 12 characters. Example: 'INV-REF-001'."
+        }), // More strict validation
+      });
+    } else if(this.additionalInfo.channel === "DIRECT_DEBIT_ALLO_SNAP") {
+      schema = schema.keys({
+        partnerRefundNo: Joi.string().min(32).max(64).required().messages({
           "*": "partnerRefundNo must be 12 characters or fewer. Ensure that partnerRefundNo is no longer than 12 characters. Example: 'INV-REF-001'."
         }), // More strict validation
       });
