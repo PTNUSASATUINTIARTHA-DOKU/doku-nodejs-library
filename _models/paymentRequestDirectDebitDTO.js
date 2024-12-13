@@ -130,9 +130,22 @@ class PaymentRequestDto {
             }),
             chargeToken: Joi.string().optional()
         })
+        if(this.additionalInfo.channel === "DIRECT_DEBIT_CIMB_SNAP") {
+            schema = schema.keys({
+                partnerReferenceNo: Joi.string().max(12).required()
+            })
+        } else if(this.additionalInfo.channel === "DIRECT_DEBIT_BRI_SNAP" || this.additionalInfo.channel === "EMONEY_OVO_SNAP") {
+            schema = schema.keys({
+                partnerReferenceNo: Joi.string().max(64).required()
+            })
+        } else if(this.additionalInfo.channel === "DIRECT_DEBIT_ALLO_SNAP") {
+            schema = schema.keys({
+                partnerReferenceNo: Joi.string().min(32).max(64).required()
+            })
+        }
         const { error } = schema.validate(this, { abortEarly: true });
         if (error) {
-            throw new Error(`Validation failed: ${error.details.map(x => x.message).join(', ')}`);
+            throw new Error(`${error.details.map(x => x.message).join(', ')}`);
         }
     }
 

@@ -318,7 +318,6 @@ class Snap{
     
         // check token b2b2c
         var isTokenB2b2cInvalid = tokenController.isTokenInvalid(this.tokenB2b2c, this.tokenB2b2cExpiresIn, this.tokenB2b2cGeneratedTimestamp);
-        console.log(authCode)
         if (isTokenB2b2cInvalid) {
             await this.getTokenB2B2c(authCode)
         }
