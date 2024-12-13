@@ -31,7 +31,7 @@ class RefundRequestDto {
     // Create base schema
     let schema = Joi.object({
       originalPartnerReferenceNo: Joi.string().min(1).max(64).required(),
-      originalExternalId: Joi.string().max(36).required(),
+      originalExternalId: Joi.string().allow(null, '').max(36).optional(),
       refundAmount: amountSchema.required(),
       additionalInfo: additionalInfoSchema.required(),
       reason: Joi.string().max(255).optional(),

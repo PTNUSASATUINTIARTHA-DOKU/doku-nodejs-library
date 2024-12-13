@@ -84,6 +84,17 @@ class PaymentRequestDto {
   
     validatePaymentRequestDto(){
         const validChannels = Object.values(DIRECT_DEBIT_CHANNEL);
+        let payOptionDetailSchema = Joi.array().items(Joi.object({
+            payMethod: Joi.string().optional(),
+            transAmount: Joi.object({
+                value: Joi.string().min(4).max(16).pattern(/^(0|[1-9]\d{0,15})(\.\d{2})?$/).required(),
+                currency: Joi.string().length(3).default('IDR').required()
+            }).optional(),
+            feeAmount: Joi.object({
+                value: Joi.string().min(4).max(16).pattern(/^(0|[1-9]\d{0,15})(\.\d{2})?$/).required(),
+                currency: Joi.string().length(3).default('IDR').required()
+            }).optional()
+        })).optional()
         let  schema = Joi.object({
             partnerReferenceNo:Joi.string().min(1).max(64).required(),
             feetype: Joi.string().valid('OUR', 'BEN', 'SHA').optional(),
@@ -95,17 +106,7 @@ class PaymentRequestDto {
                 value: Joi.string().min(4).max(19).pattern(/^(0|[1-9]\d{0,15})(\.\d{2})?$/).optional(),
                 currency: Joi.string().length(3).default('IDR').optional()
             }).optional,
-            payOptionDetails: Joi.array().items(Joi.object({
-                payMethod: Joi.string().valid('CASH', 'POINTS').optional(),
-                transAmount: Joi.object({
-                    value: Joi.string().min(4).max(16).pattern(/^(0|[1-9]\d{0,15})(\.\d{2})?$/).required(),
-                    currency: Joi.string().length(3).default('IDR').required()
-                }).optional(),
-                feeAmount: Joi.object({
-                    value: Joi.string().min(4).max(16).pattern(/^(0|[1-9]\d{0,15})(\.\d{2})?$/).required(),
-                    currency: Joi.string().length(3).default('IDR').required()
-                }).optional()
-            })).optional(),
+            payOptionDetails: payOptionDetailSchema,
             additionalInfo: Joi.object({
                 channel: Joi.string().valid(...validChannels).required().messages({
                     'any.only': 'additionalInfo.channel is not valid. Ensure that additionalInfo.channel is one of the valid channels. Example: DIRECT_DEBIT_ALLO_SNAP'
@@ -135,12 +136,36 @@ class PaymentRequestDto {
                 partnerReferenceNo: Joi.string().max(12).required()
             })
         } else if(this.additionalInfo.channel === "DIRECT_DEBIT_BRI_SNAP" || this.additionalInfo.channel === "EMONEY_OVO_SNAP") {
+            payOptionDetailSchema = Joi.array().items(Joi.object({
+                payMethod: Joi.string().valid('CASH', 'POINTS').optional(),
+                transAmount: Joi.object({
+                    value: Joi.string().min(4).max(16).pattern(/^(0|[1-9]\d{0,15})(\.\d{2})?$/).required(),
+                    currency: Joi.string().length(3).default('IDR').required()
+                }).optional(),
+                feeAmount: Joi.object({
+                    value: Joi.string().min(4).max(16).pattern(/^(0|[1-9]\d{0,15})(\.\d{2})?$/).required(),
+                    currency: Joi.string().length(3).default('IDR').required()
+                }).optional()
+            })).optional()
             schema = schema.keys({
-                partnerReferenceNo: Joi.string().max(64).required()
+                partnerReferenceNo: Joi.string().max(64).required(),
+                payOptionDetails: payOptionDetailSchema
             })
         } else if(this.additionalInfo.channel === "DIRECT_DEBIT_ALLO_SNAP") {
+            payOptionDetailSchema = Joi.array().items(Joi.object({
+                payMethod: Joi.string().valid('PAYLATER', 'POINT', 'BALANCE').optional(),
+                transAmount: Joi.object({
+                    value: Joi.string().min(4).max(16).pattern(/^(0|[1-9]\d{0,15})(\.\d{2})?$/).required(),
+                    currency: Joi.string().length(3).default('IDR').required()
+                }).optional(),
+                feeAmount: Joi.object({
+                    value: Joi.string().min(4).max(16).pattern(/^(0|[1-9]\d{0,15})(\.\d{2})?$/).required(),
+                    currency: Joi.string().length(3).default('IDR').required()
+                }).optional()
+            })).optional()
             schema = schema.keys({
-                partnerReferenceNo: Joi.string().min(32).max(64).required()
+                partnerReferenceNo: Joi.string().min(32).max(64).required(),
+                payOptionDetails: payOptionDetailSchema
             })
         }
         const { error } = schema.validate(this, { abortEarly: true });
