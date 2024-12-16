@@ -379,10 +379,13 @@ class Snap{
         }
         // check token b2b2c
         var isTokenB2b2cInvalid = tokenController.isTokenInvalid(this.tokenB2b2c, this.tokenB2b2cExpiresIn, this.tokenB2b2cGeneratedTimestamp);
-    
-        if (isTokenB2b2cInvalid) {
-            await this.getTokenB2B2c(authCode)
+        
+        if(refundRequestDto.additionalInfo.channel != "EMONEY_SHOPEE_PAY_SNAP" && refundRequestDto.additionalInfo.channel != "EMONEY_DANA_SNAP") {
+            if (isTokenB2b2cInvalid) {
+                await this.getTokenB2B2c(authCode)
+            }
         }
+
         let directDebitController = new DirectDebitController()
         let refundResponseDto = directDebitController.doRefund(refundRequestDto,this.privateKey, this.clientId,this.tokenB2B, this.tokenB2b2c,this.secretKey,this.isProduction,ipAddress,deviceId)
         return refundResponseDto;
