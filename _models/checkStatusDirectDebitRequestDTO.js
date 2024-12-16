@@ -1,4 +1,5 @@
 const Joi = require("joi");
+const DIRECT_DEBIT_CHANNEL = require("../_commons/ddChannelEnum")
 
 class CheckStatusDirectDebitDTO {
     constructor(
@@ -24,44 +25,37 @@ class CheckStatusDirectDebitDTO {
       this.externalStoreId = externalStoreId;
       this.additionalInfo = additionalInfo; // instance of AdditionalInfoDto
     }
-    validateCheckStatusRequestDto() {
-        const schema = Joi.object({
-            additionalInfo: Joi.object({
-                channel: Joi.string().min(1).max(30).required()
-            })
-        })
-        const { error } = schema.validate(this, { abortEarly: false });
-        if (error) {
-            throw new Error(`Validation failed: ${error.details.map(x => x.message).join(', ')}`);
-        }
-    }
+
     validateCheckStatusRequestDto(){
+        const validChannels = Object.values(DIRECT_DEBIT_CHANNEL);
+
         const amountSchema = Joi.object({
-          value: Joi.string().optional(),
-          currency: Joi.string().optional(),
+          value: Joi.string().allow(null, '').optional(),
+          currency: Joi.string().allow(null, '').optional(),
         });
       
         const additionalInfoSchema = Joi.object({
-          deviceId: Joi.string().optional(),
-          channel: Joi.string().optional(),
+          deviceId: Joi.string().allow(null, '').optional(),
+          channel: Joi.string().valid(...validChannels).optional().messages({
+            'any.only': 'additionalInfo.channel is not valid. Ensure that additionalInfo.channel is one of the valid channels. Example: DIRECT_DEBIT_ALLO_SNAP'
+          }),
         });
       
         const schema = Joi.object({
-          originalPartnerReferenceNo: Joi.string().optional(),
-          originalReferenceNo: Joi.string().optional(),
-          originalExternalId: Joi.string().optional(),
-          serviceCode: Joi.string().required(),
-          transactionDate: Joi.string().optional(),
-          amount: amountSchema.optional(),
-          merchantId: Joi.string().optional(),
-          subMerchantId: Joi.string().optional(),
-          externalStoreId: Joi.string().optional(),
-          additionalInfo: additionalInfoSchema.optional(),
+          originalPartnerReferenceNo: Joi.string().allow(null, '').optional(),
+          originalReferenceNo: Joi.string().allow(null, '').optional(),
+          originalExternalId: Joi.string().allow(null, '').optional(),
+          serviceCode: Joi.string().equal("55").required().messages({"*":"serviceCode must be 55"}),
+          transactionDate: Joi.string().allow(null, '').optional(),
+          amount: amountSchema.allow(null, '').optional(),
+          merchantId: Joi.string().allow(null, '').optional(),
+          subMerchantId: Joi.string().allow(null, '').optional(),
+          externalStoreId: Joi.string().allow(null, '').optional(),
+          additionalInfo: additionalInfoSchema.allow(null, '').optional(),
         });
-      
-        const { error } = schema.validate(this, { abortEarly: false });
+        const { error } = schema.validate(this, { abortEarly: true });
         if (error) {
-            throw new Error(`Validation failed: ${error.details.map(x => x.message).join(', ')}`);
+            throw new Error(`${error.details.map(x => x.message)}`);
         }
       };
   

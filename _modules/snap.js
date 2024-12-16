@@ -219,8 +219,12 @@ class Snap{
     }
     async doAccountUnbinding(AccountUnbindingRequestDto,ipAddress){
         let channel = AccountUnbindingRequestDto.additionalInfo.channel;
-        validateHeader({ipAddress,channel,type:"ACCOUNT_UNBINDING"})
-        AccountUnbindingRequestDto.validateAccountUnbindingRequestDto();
+        try {
+            validateHeader({ipAddress,channel,type:"ACCOUNT_UNBINDING"})
+            AccountUnbindingRequestDto.validateAccountUnbindingRequestDto();
+        } catch(error) {
+            return {"responseCode": "5005400", "responseMessage": error.message}
+        }
         let tokenController = new TokenController();
         let isTokenInvalid = tokenController.isTokenInvalid(this.tokenB2B, this.tokenExpiresIn, this.tokenGeneratedTimestamp);
         if(isTokenInvalid){
@@ -233,8 +237,12 @@ class Snap{
     }
     async doAccountBinding(accountBindingRequestDto,ipAddress,deviceId){
         let channel = accountBindingRequestDto.additionalInfo.channel;
-        validateHeader({ipAddress,deviceId,channel,type:"ACCOUNT_BINDING"})
-        accountBindingRequestDto.validateAccountBindingRequestDto();
+        try {
+            validateHeader({ipAddress,deviceId,channel,type:"ACCOUNT_BINDING"})
+            accountBindingRequestDto.validateAccountBindingRequestDto();
+        } catch(error) {
+            return {"responseCode": "5005400", "responseMessage": error.message}
+        }
         let tokenController = new TokenController();
         let isTokenInvalid = tokenController.isTokenInvalid(this.tokenB2B, this.tokenExpiresIn, this.tokenGeneratedTimestamp);
         if(isTokenInvalid){
@@ -247,8 +255,12 @@ class Snap{
     }
     async doPaymentJumpApp(paymentJumpAppRequestDto, ipAddress,deviceId) {
         let channel = paymentJumpAppRequestDto.additionalInfo.channel;
-        validateHeader({ipAddress,deviceId,channel,type:"PAYMENT"})
-        paymentJumpAppRequestDto.validate();
+        try {
+            validateHeader({ipAddress,deviceId,channel,type:"PAYMENT"})
+            paymentJumpAppRequestDto.validate();
+        } catch(error) {
+            return {"responseCode": "5005400", "responseMessage": error.message}
+        }
     
         let tokenController = new TokenController();
         let isTokenInvalid = tokenController.isTokenInvalid(this.tokenB2B, this.tokenExpiresIn, this.tokenGeneratedTimestamp);
@@ -262,8 +274,13 @@ class Snap{
     }
     async doBalanceInquiry(balanceInquiryRequestDto, authCode,ipAddress)  {
         let channel = balanceInquiryRequestDto.additionalInfo.channel;
-        validateHeader({ipAddress,channel,type:"CHECK_BALANCE"})
+        try {
+            validateHeader({ipAddress,channel,type:"CHECK_BALANCE"})
         balanceInquiryRequestDto.validateBalanceInquiryRequestDto();
+        } catch(error) {
+            return {"responseCode": "5001100", "responseMessage": error.message}
+        }
+        
         
         let tokenController = new TokenController();
         // check token b2b
@@ -283,10 +300,14 @@ class Snap{
     
         return balanceInquiryResponseDto;
     }
-   async doPayment(paymentRequestDto, authCode,ipAddress) {
+   async doPayment(paymentRequestDto, authCode,ipAddress, deviceId) {
         let channel = paymentRequestDto.additionalInfo.channel;
-        validateHeader({ipAddress,channel,type:"PAYMENT"})
-        paymentRequestDto.validatePaymentRequestDto();
+        try {
+            validateHeader({ipAddress, deviceId, channel,type:"PAYMENT"})
+            paymentRequestDto.validatePaymentRequestDto();
+        } catch(error) {
+            return {"responseCode": "5005400", "responseMessage": error.message}
+        }
 
         let tokenController = new TokenController();
         // check token b2b
@@ -297,18 +318,21 @@ class Snap{
     
         // check token b2b2c
         var isTokenB2b2cInvalid = tokenController.isTokenInvalid(this.tokenB2b2c, this.tokenB2b2cExpiresIn, this.tokenB2b2cGeneratedTimestamp);
-        console.log(authCode)
         if (isTokenB2b2cInvalid) {
             await this.getTokenB2B2c(authCode)
         }
         
         let directDebitController = new DirectDebitController()
-        let paymentResponseDto =  await directDebitController.doPayment(paymentRequestDto, this.privateKey, this.clientId, this.tokenB2B, this.tokenB2b2c, this.secretKey, this.isProduction,ipAddress)
+        let paymentResponseDto =  await directDebitController.doPayment(paymentRequestDto, this.privateKey, this.clientId, this.tokenB2B, this.tokenB2b2c, this.secretKey, this.isProduction,ipAddress, deviceId)
     
         return paymentResponseDto;
     }
     async doRegistrationCardBind(cardRegistrationRequestDto) {
-        cardRegistrationRequestDto.validateCardRegistrationRequestDto();
+        try {
+            cardRegistrationRequestDto.validateCardRegistrationRequestDto();
+        } catch(error) {
+            return {"responseCode": "5005400", "responseMessage": error.message}
+        }
     
         let tokenController = new TokenController();
         let isTokenInvalid = tokenController.isTokenInvalid(this.tokenB2B, this.tokenExpiresIn, this.tokenGeneratedTimestamp);
@@ -321,7 +345,11 @@ class Snap{
         return cardBindResponseDto
     }
     async doUnRegistCardUnBind(cardUnRegistUnbindRequestDTO) {
-        cardUnRegistUnbindRequestDTO.validateCardUnRegistRequestDTO ();
+        try {
+            cardUnRegistUnbindRequestDTO.validateCardUnRegistRequestDTO();
+        } catch(error) {
+            return {"responseCode": "5005400", "responseMessage": error.message}
+        }
     
         let tokenController = new TokenController();
         let isTokenInvalid = tokenController.isTokenInvalid(this.tokenB2B, this.tokenExpiresIn, this.tokenGeneratedTimestamp);
@@ -337,8 +365,12 @@ class Snap{
     }
     async doRefund(refundRequestDto, authCode,ipAddress,deviceId)  {
         let channel = refundRequestDto.additionalInfo.channel;
-        validateHeader({ipAddress,deviceId,channel,type:"REFUND"})
-        refundRequestDto.validateRefundRequestDto();
+        try {
+            validateHeader({ipAddress,deviceId,channel,type:"REFUND"})
+            refundRequestDto.validateRefundRequestDto();
+        } catch(error) {
+            return {"responseCode": "5000700", "responseMessage": error.message}
+        }
         let tokenController = new TokenController();
         // check token b2b
         let isTokenInvalid = tokenController.isTokenInvalid(this.tokenB2B, this.tokenExpiresIn, this.tokenGeneratedTimestamp);
@@ -347,16 +379,24 @@ class Snap{
         }
         // check token b2b2c
         var isTokenB2b2cInvalid = tokenController.isTokenInvalid(this.tokenB2b2c, this.tokenB2b2cExpiresIn, this.tokenB2b2cGeneratedTimestamp);
-    
-        if (isTokenB2b2cInvalid) {
-            await this.getTokenB2B2c(authCode)
+        
+        if(refundRequestDto.additionalInfo.channel != "EMONEY_SHOPEE_PAY_SNAP" && refundRequestDto.additionalInfo.channel != "EMONEY_DANA_SNAP") {
+            if (isTokenB2b2cInvalid) {
+                await this.getTokenB2B2c(authCode)
+            }
         }
+
         let directDebitController = new DirectDebitController()
         let refundResponseDto = directDebitController.doRefund(refundRequestDto,this.privateKey, this.clientId,this.tokenB2B, this.tokenB2b2c,this.secretKey,this.isProduction,ipAddress,deviceId)
         return refundResponseDto;
     }
     async doCheckStatus(checkStatusRequestDto){
-        checkStatusRequestDto.validateCheckStatusRequestDto();
+        try {
+            checkStatusRequestDto.validateCheckStatusRequestDto()
+        } catch(error) {
+            return {"responseCode": "5002600", "responseMessage": error.message}
+        }
+        
         let tokenController = new TokenController();
         let isTokenInvalid = tokenController.isTokenInvalid(this.tokenB2B, this.tokenExpiresIn, this.tokenGeneratedTimestamp);
         if(isTokenInvalid){
