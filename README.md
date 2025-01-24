@@ -36,7 +36,7 @@ If your looking for another language  [PHP](https://github.com/PTNUSASATUINTIART
 ### Installation
 To install the Doku Snap SDK, use Composer:
 ```bash
-npm install doku
+npm i doku-nodejs-library
 ```
 
 ### Configuration
