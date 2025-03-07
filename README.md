@@ -41,7 +41,7 @@ npm i doku-nodejs-library
 
 ### Configuration
 Before using the Doku Snap SDK, you need to initialize it with your credentials:
-1. **Client ID** and **Secret Key**: Retrieve these from the Integration menu in your Doku Dashboard
+1. **Client ID**, **Secret Key** and **DOKU Public Key**: Retrieve these from the Integration menu in your Doku Dashboard
 2. **Private Key** and **Public Key** : Generate your Private Key and Public Key
 
 How to generate Merchant privateKey and publicKey :
@@ -59,6 +59,7 @@ The encryption model applied to messages involves both asymmetric and symmetric 
 |-----------------|----------------------------------------------------|--------------|
 | `privateKey`    | The private key for the partner service.           | ✅          |
 | `publicKey`     | The public key for the partner service.            | ✅           |
+| `dokuPublicKey` | Key that merchants use to verify DOKU request      | ✅           |
 | `clientId`      | The client ID associated with the service.         | ✅           |
 | `secretKey`     | The secret key for the partner service.            | ✅           |
 | `isProduction`  | Set to true for production environment             | ✅           |
@@ -66,7 +67,7 @@ The encryption model applied to messages involves both asymmetric and symmetric 
 | `authCode`      | Optional authorization code for advanced use.      | ❌           |
 
 
-```nodejs
+```js
 const doku = require('doku-nodejs-library');
 
 let privateKey = `-----BEGIN PRIVATE KEY-----
@@ -97,7 +98,7 @@ let snap = new doku.Snap({
 **Initialization**
 Always start by initializing the Snap object.
 
-```nodejs
+```js
 let snap = new doku.Snap({
     isProduction : false,
     privateKey : privateKey,
@@ -221,7 +222,7 @@ Parameters for **createVA** and **updateVA**
 
 1. **Create Virtual Account**
     - **Function:** `createVa`
-    ```nodejs
+    ```js
     const CreateVARequestDto = require('doku-nodejs-library/_models/createVaRequestDto');
     const VirtualAccountConfig = require('doku-nodejs-library/_models/virtualAccountConfig');
     const TotalAmount = require('doku-nodejs-library/_models/totalAmount');
@@ -270,7 +271,7 @@ Parameters for **createVA** and **updateVA**
 2. **Update Virtual Account**
     - **Function:** `updateVa`
 
-    ```nodejs
+    ```js
     const UpdateVaVirtualAccountConfigDto = require('doku-nodejs-library/_models/updateVaVirtualAccountConfigDTO');
     const VirtualAccountConfig = require('doku-nodejs-library/_models/virtualAccountConfig');
     const TotalAmount = require('doku-nodejs-library/_models/totalAmount');
@@ -328,7 +329,7 @@ Parameters for **createVA** and **updateVA**
     
   - **Function:** `deletePaymentCode`
 
-    ```nodejs
+    ```js
     const DeleteVaRequestDto = require('doku-nodejs-library/_models/deleteVaRequestDTO');
     const DeleteVaRequestAdditionalInfo = require('doku-nodejs-library/_models/deleteVaRequestAdditionalInfoDTO');
     
@@ -362,7 +363,7 @@ Parameters for **createVA** and **updateVA**
 
 - **Function:** `directInquiryVa`
 
-    ```nodejs
+    ```js
     const InquiryResponseVirtualAccountDataDTO = require('doku-nodejs-library/_models/InquiryResponseVirtualAccountDataDTO');
     const InquiryResponseBodyDTO = require('doku-nodejs-library/_models/inquiryResponseBodyDTO');
     const TotalAmount = require('doku-nodejs-library/_models/totalAmount');
@@ -437,7 +438,7 @@ Parameters for **createVA** and **updateVA**
 | `additionalInfo`      | The virtual account number associated with the customer.                   | String      | ❌           |
 
   - **Function:** `checkStatusVa`
-    ```nodejs
+    ```js
     const CheckStatusVARequestDto = require('doku-nodejs-library/_models/checkStatusVARequestDTO');
     
     app.post('/check-status', async (req,res) => {
@@ -561,7 +562,7 @@ Each card/account can only registered/bind to one customer on one merchant. Cust
 
   - **Function:** `doAccountBinding`
 
-    ```nodejs
+    ```js
     const AccountBindingRequestDto = require('doku-nodejs-library/_models/accountBindingRequestDTO');
     
     app.post("/account-binding", async (req,res)=>{
@@ -586,7 +587,7 @@ Each card/account can only registered/bind to one customer on one merchant. Cust
 
 1. **Unbinding**
      - **Function:** `getTokenB2B2C`
-    ```nodejs
+    ```js
     app.post('/token-b2b2c', async (req,res) => {
         <!--YOUR_AUTH_CODE_FROM_ACCOUNT_BINDING-->
       let authCode = req.body['authCode'];
@@ -603,7 +604,7 @@ Each card/account can only registered/bind to one customer on one merchant. Cust
      })
    ```
     - **Function:** `doAccountUnbinding`
-    ```nodejs
+    ```js
     const {AccountUnbindingRequestDto,AccountUnbindingAdditionalInfo} = require('doku-nodejs-library/_models/accountUnbindingRequestDTO');
     
     app.post("/account-unbinding", async (req,res)=>{
@@ -629,7 +630,7 @@ Each card/account can only registered/bind to one customer on one merchant. Cust
 1. **Registration**
     - **Function:** `doCardRegistration`
 
-    ```nodejs
+    ```js
     const CardRegistrationRequestDTO = require('doku-nodejs-library/_models/cardRegistrationRequestDTO');
     
     app.post("/card-registration", async (req,res)=>{
@@ -655,7 +656,7 @@ Each card/account can only registered/bind to one customer on one merchant. Cust
 
 2. **UnRegistration**
     - **Function:** `getTokenB2B2C`
-    ```nodejs
+    ```js
     app.post('/token-b2b2c', async (req,res) => {
         <!--YOUR_AUTH_CODE_FROM_ACCOUNT_BINDING-->
       let authCode = req.body['authCode'];
@@ -673,7 +674,7 @@ Each card/account can only registered/bind to one customer on one merchant. Cust
    ```
     - **Function:** `doCardUnbinding`
 
-    ```nodejs
+    ```js
     const CardUnRegistUnbindRequestDTO= require('doku-nodejs-library/_models/cardUnregistUnbindRequestDTO');
       
     app.post("/card-unbinding", async (req,res)=>{
@@ -796,7 +797,7 @@ Each card/account can only registered/bind to one customer on one merchant. Cust
 Here’s how you can use the `doPayment` function for both payment types:
   - **Function:** `doPayment`
     
-    ```nodejs
+    ```js
     const { PaymentRequestDto } = require('doku-nodejs-library/_models/paymentRequestDirectDebitDTO');
     
      app.post("/debit-payment", async (req,res)=>{
@@ -921,7 +922,7 @@ For Shopeepay and Dana you can use the `doPaymentJumpApp` function for for Jumpa
 
 - **Function:** `doPaymentJumpApp`
 
-```nodejs
+```js
     const PaymentJumpAppRequestDto = require('doku-nodejs-library/_models/paymentJumpAppRequestDTO');
     
     app.post("/payment-jump-app", async (req,res)=>{
@@ -953,7 +954,7 @@ For Shopeepay and Dana you can use the `doPaymentJumpApp` function for for Jumpa
 
 ### A. Check Transaction Status
 
-  ```nodejs
+  ```js
   const CheckStatusDirectDebitDTO = require('doku-nodejs-library/_models/checkStatusDirectDebitRequestDTO');
   
    app.post('/debit-status', async (req,res) => {
@@ -985,7 +986,7 @@ For Shopeepay and Dana you can use the `doPaymentJumpApp` function for for Jumpa
 
 ### B. Refund
 
-  ```nodejs
+  ```js
   const RefundRequestDto = require('doku-nodejs-library/_models/refundRequestDTO');
   
   app.post("/refund", async (req,res)=>{
@@ -1014,7 +1015,7 @@ For Shopeepay and Dana you can use the `doPaymentJumpApp` function for for Jumpa
 
 ### C. Balance Inquiry
 
-  ```nodejs
+  ```js
   const BalanceInquiryRequestDto = require('doku-nodejs-library/_models/balanceInquiryRequestDTO');
   
   app.post("/balance-inquiry", async (req,res)=>{
@@ -1038,7 +1039,7 @@ For Shopeepay and Dana you can use the `doPaymentJumpApp` function for for Jumpa
 ## 4. Error Handling and Troubleshooting
 
 The SDK throws exceptions for various error conditions. Always wrap your API calls in try-catch blocks:
- ```nodejs
+ ```js
   await snap.createVa(createVaRequestDto).then(va=>{
     res.status(200).send(va);
   }).catch(err=>{
