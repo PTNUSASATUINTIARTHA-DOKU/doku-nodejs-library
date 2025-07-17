@@ -2,7 +2,7 @@ const Joi = require('joi');
 
 class CreateVARequestDto {
 
-    constructor(partnerServiceId, customerNo, virtualAccountNo, virtualAccountName, virtualAccountEmail, virtualAccountPhone, trxId, totalAmount, additionalInfo, virtualAccountTrxType, expiredDate, freeText) {
+    constructor(partnerServiceId, customerNo, virtualAccountNo, virtualAccountName, virtualAccountEmail, virtualAccountPhone, trxId, totalAmount, additionalInfo, virtualAccountTrxType, expiredDate, freeText= null) {
         this.partnerServiceId = partnerServiceId;
         
         if(customerNo != ''){
@@ -168,7 +168,7 @@ class CreateVARequestDto {
         }
     }
     toObject() {
-        return {
+        const obj = {
             partnerServiceId: this.partnerServiceId,
             customerNo: this.customerNo,
             virtualAccountNo: this.virtualAccountNo,
@@ -179,8 +179,12 @@ class CreateVARequestDto {
             totalAmount: this.totalAmount,
             additionalInfo: this.additionalInfo,
             virtualAccountTrxType: this.virtualAccountTrxType,
-            expiredDate: this.expiredDate
+            expiredDate: this.expiredDate,
         };
+        if (this.freeText !== null && this.freeText !== undefined) {
+            obj.freeText = this.freeText;
+        }
+        return obj;
     }
 
 }
