@@ -28,8 +28,6 @@ class TokenController{
         let timestamp = request.get('x-timestamp');
         const signature = TokenService.generateSignatureV2(privateKey, clientId, timestamp,request);
         let requestSignature = request.get('x-signature');
-        console.log(signature)
-        console.log(requestSignature)
         return TokenService.compareSignaturesV2(requestSignature,signature)
        
     }

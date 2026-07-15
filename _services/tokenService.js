@@ -217,7 +217,6 @@ module.exports = {
     createSignature(rawData, secretKey){
         let signatureUtf8 = CryptoJS.enc.Utf8.parse(rawData);
         var secretUtf8 = CryptoJS.enc.Utf8.parse(secretKey);
-        console.log("secretKey: " + secretKey);
         var signatureBytes = CryptoJS.HmacSHA512(signatureUtf8,secretUtf8);
         var requestSignatureBase64String = CryptoJS.enc.Base64.stringify(signatureBytes);
         return requestSignatureBase64String;
